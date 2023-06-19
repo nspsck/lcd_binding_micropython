@@ -56,7 +56,7 @@ STATIC mp_obj_t mp_lcd_qspi_panel_make_new(const mp_obj_type_t *type,
     const mp_arg_t make_new_args[] = {
         { MP_QSTR_spi,              MP_ARG_OBJ | MP_ARG_KW_ONLY | MP_ARG_REQUIRED        },
         { MP_QSTR_data,             MP_ARG_OBJ | MP_ARG_KW_ONLY | MP_ARG_REQUIRED        },
-        { MP_QSTR_dc,          MP_ARG_OBJ | MP_ARG_KW_ONLY | MP_ARG_REQUIRED        },
+        { MP_QSTR_dc,               MP_ARG_OBJ | MP_ARG_KW_ONLY | MP_ARG_REQUIRED        },
         { MP_QSTR_cs,               MP_ARG_OBJ | MP_ARG_KW_ONLY,  {.u_obj = MP_OBJ_NULL} },
         { MP_QSTR_pclk,             MP_ARG_INT | MP_ARG_KW_ONLY,  {.u_int = 10000000   } },
         { MP_QSTR_width,            MP_ARG_INT | MP_ARG_KW_ONLY,  {.u_int = 240        } },
