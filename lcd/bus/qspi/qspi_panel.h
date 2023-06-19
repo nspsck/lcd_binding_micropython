@@ -16,12 +16,12 @@ typedef struct _mp_lcd_qspi_panel_obj_t {
 
     mp_hal_pin_obj_t databus_pins[4];
     mp_hal_pin_obj_t dc_pin;
-    mp_hal_pin_obj_t wr_pin;
+    /*mp_hal_pin_obj_t wr_pin;*/
     mp_hal_pin_obj_t cs_pin;
 
     mp_obj_t databus[4];
     mp_obj_t dc;
-    mp_obj_t wr;
+    /*mp_obj_t wr;*/
     mp_obj_t cs;
 
     uint32_t pclk;
