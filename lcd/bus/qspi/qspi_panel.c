@@ -22,12 +22,13 @@ STATIC void mp_lcd_qspi_panel_print(const mp_print_t *print,
 {
     (void) kind;
     mp_lcd_qspi_panel_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    /*write=%p,*/
+    /*self->wr,*/
     mp_printf(
         print,
-        "<QSPI Panel SPI=%p, dc=%p, /*write=%p,*/ cs=%p, width=%u, height=%u, cmd_bits=%u, param_bits=%u>",
+        "<QSPI Panel SPI=%p, dc=%p, cs=%p, width=%u, height=%u, cmd_bits=%u, param_bits=%u>",
         self->spi_obj,
         self->dc,
-        /*self->wr,*/
         self->cs,
         self->width,
         self->height,
