@@ -19,7 +19,7 @@ STATIC const lcd_panel_rotation_t ORIENTATIONS_GENERAL[4] = {
 STATIC const lcd_panel_rotation_t ORIENTATIONS_240x536[4] = {
     { 0x00, 240, 536, 0, 0 },
     { 0x60, 536, 240, 0, 0 },
-    { 0xC0, 240, 160, 0, 0 },
+    { 0xC0, 240, 536, 0, 0 },
     { 0xA0, 536, 240, 0, 0 }
 };
 
