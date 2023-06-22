@@ -100,7 +100,7 @@ STATIC mp_obj_t mp_lcd_qspi_panel_tx_param(size_t n_args, const mp_obj_t *args_i
 {
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args_in[0]);
     int cmd = mp_obj_get_int(args_in[1]);
-    if (n_args == 3) {
+    if (n_args == 3) { //if only 3 args are passed, then the len variable is not passed, hence this is a cmd, else it is a data
         mp_buffer_info_t bufinfo;
         mp_get_buffer_raise(args_in[2], &bufinfo, MP_BUFFER_READ);
         hal_lcd_qspi_panel_tx_param(self, cmd, bufinfo.buf, bufinfo.len);

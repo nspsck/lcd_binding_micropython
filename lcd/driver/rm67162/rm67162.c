@@ -34,12 +34,79 @@ typedef struct _mp_lcd_rm67162_obj_t {
     uint8_t colmod_cal; // save surrent value of LCD_CMD_COLMOD register
 } mp_lcd_rm67162_obj_t;
 
+typedef struct _Point {
+    mp_float_t x;
+    mp_float_t y;
+} Point;
+
+typedef struct _Polygon {
+    int length;
+    Point *points;
+} Polygon;
+
+#define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
+#define _swap_bytes(val) ((((val) >> 8) & 0x00FF) | (((val) << 8) & 0xFF00))
+
+#define ABS(N) (((N) < 0) ? (-(N)) : (N))
+#define mp_hal_delay_ms(delay) (mp_hal_delay_us(delay * 1000))
+
+#define DC_LOW() (mp_hal_pin_write(self->dc, 0))
+#define DC_HIGH() (mp_hal_pin_write(self->dc, 1))
+
+#define CS_LOW()                           \
+    {                                      \
+        if (self->cs) {                    \
+            mp_hal_pin_write(self->cs, 0); \
+        }                                  \
+    }
+
+#define CS_HIGH()                          \
+    {                                      \
+        if (self->cs) {                    \
+            mp_hal_pin_write(self->cs, 1); \
+        }                                  \
+    }
+
+#define RESET_LOW()                         \
+    {                                       \
+        if (self->reset)                    \
+        mp_hal_pin_write(self->reset, 0);   \
+    }
+
+#define RESET_HIGH()                        \
+    {                                       \
+        if (self->reset)                    \
+        mp_hal_pin_write(self->reset, 1);   \
+    }
+
+STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd,const void *buf, int len) {
+    if (self->lcd_panel_p) {
+            self->lcd_panel_p->tx_param(self->bus_obj, &cmd, buf, len);
+        }
+}
+
+//esp_lcd_panel_io_tx_param() is used to write cmd through spi
+STATIC void write_cmd(mp_lcd_rm67162_obj_t *self, int cmd, const void *data, int len) {
+    CS_LOW()
+    if (cmd) {
+        DC_LOW();
+        write_spi(self->spi_obj, &cmd, NULL, 1);
+    }
+    if (len > 0) {
+        DC_HIGH();
+        write_spi(self->spi_obj, &cmd, data, len);
+    }
+    CS_HIGH()
+}
 
 STATIC void set_rotation(mp_lcd_rm67162_obj_t *self, uint8_t rotation)
 {
     self->madctl_val &= 0x1F;
     self->madctl_val |= self->rotations[rotation].madctl;
 
+    write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) { self->madctl_val }, 1)
+
+/*
     // tx param
     if (self->lcd_panel_p) {
         self->lcd_panel_p->tx_param(
@@ -49,6 +116,7 @@ STATIC void set_rotation(mp_lcd_rm67162_obj_t *self, uint8_t rotation)
             1
         );
     }
+*/
 
     self->width = self->rotations[rotation].width;
     self->height = self->rotations[rotation].height;
