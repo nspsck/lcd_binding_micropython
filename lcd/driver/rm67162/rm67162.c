@@ -51,19 +51,19 @@ typedef struct _Polygon {
 #define mp_hal_delay_ms(delay) (mp_hal_delay_us(delay * 1000))
 
 
-STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd,const void *buf, int len) {
+STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int *cmd,const void *buf, int len) {
     if (self->lcd_panel_p) {
-            self->lcd_panel_p->tx_param(self->bus_obj, &cmd, buf, len);
+            self->lcd_panel_p->tx_param(self->bus_obj, cmd, buf, len);
         }
 }
 
 //esp_lcd_panel_io_tx_param() is used to write cmd through spi
-STATIC void write_cmd(mp_lcd_rm67162_obj_t *self, int cmd, const void *data, int len) {
+STATIC void write_cmd(mp_lcd_rm67162_obj_t *self, int *cmd, const void *data, int len) {
     if (data == NULL) {
-        write_spi(self->bus_obj, &cmd, NULL, 1);
+        write_spi(self->bus_obj, cmd, NULL, 1);
     }
     if (data != NULL) {
-        write_spi(self->bus_obj, &cmd, data, len);
+        write_spi(self->bus_obj, cmd, data, len);
     }
 }
 
