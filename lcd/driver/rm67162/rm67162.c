@@ -60,10 +60,10 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd,const void *buf, int l
 //esp_lcd_panel_io_tx_param() is used to write cmd through spi
 STATIC void write_cmd(mp_lcd_rm67162_obj_t *self, int cmd, const void *data, int len) {
     if (data == NULL) {
-        write_spi(self->bus_obj, cmd, NULL, 1);
+        write_spi(self, cmd, NULL, 1);
     }
     if (data != NULL) {
-        write_spi(self->bus_obj, cmd, data, len);
+        write_spi(self, cmd, data, len);
     }
 }
 
