@@ -60,10 +60,10 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd,const void *buf, int l
 //esp_lcd_panel_io_tx_param() is used to write cmd through spi
 STATIC void write_cmd(mp_lcd_rm67162_obj_t *self, int cmd, const void *data, int len) {
     if (data == NULL) {
-        write_spi(self->spi_obj, &cmd, NULL, 1);
+        write_spi(self->bus_obj, &cmd, NULL, 1);
     }
     if (data != NULL) {
-        write_spi(self->spi_obj, &cmd, data, len);
+        write_spi(self->bus_obj, &cmd, data, len);
     }
 }
 
@@ -72,7 +72,7 @@ STATIC void set_rotation(mp_lcd_rm67162_obj_t *self, uint8_t rotation)
     self->madctl_val &= 0x1F;
     self->madctl_val |= self->rotations[rotation].madctl;
 
-    write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) { self->madctl_val }, 1)
+    write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) { self->madctl_val }, 1);
 
 /*
     // tx param
