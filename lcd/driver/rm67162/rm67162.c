@@ -349,7 +349,7 @@ STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
         self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, bufinfo.buf, len);
     }
 
-    //gc_collect();
+    //gc_collect(); //removed to improve the performance
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_bitmap_obj, 6, 6, mp_lcd_rm67162_bitmap);
