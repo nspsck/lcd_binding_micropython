@@ -50,23 +50,6 @@ typedef struct _Polygon {
 #define ABS(N) (((N) < 0) ? (-(N)) : (N))
 #define mp_hal_delay_ms(delay) (mp_hal_delay_us(delay * 1000))
 
-#define DC_LOW() (mp_hal_pin_write(self->dc_pin, 0))
-#define DC_HIGH() (mp_hal_pin_write(self->dc_pin, 1))
-
-#define CS_LOW()                           \
-    {                                      \
-        if (self->cs_pin) {                    \
-            mp_hal_pin_write(self->cs_pin, 0); \
-        }                                  \
-    }
-
-#define CS_HIGH()                          \
-    {                                      \
-        if (self->cs_pin) {                    \
-            mp_hal_pin_write(self->cs_pin, 1); \
-        }                                  \
-    }
-
 
 STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd,const void *buf, int len) {
     if (self->lcd_panel_p) {
@@ -76,16 +59,12 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd,const void *buf, int l
 
 //esp_lcd_panel_io_tx_param() is used to write cmd through spi
 STATIC void write_cmd(mp_lcd_rm67162_obj_t *self, int cmd, const void *data, int len) {
-    CS_LOW()
-    if (cmd) {
-        DC_LOW();
+    if (data == NULL) {
         write_spi(self->spi_obj, &cmd, NULL, 1);
     }
-    if (len > 0) {
-        DC_HIGH();
+    if (data != NULL) {
         write_spi(self->spi_obj, &cmd, data, len);
     }
-    CS_HIGH()
 }
 
 STATIC void set_rotation(mp_lcd_rm67162_obj_t *self, uint8_t rotation)
