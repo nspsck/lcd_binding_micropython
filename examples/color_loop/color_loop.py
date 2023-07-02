@@ -55,11 +55,13 @@ def main():
     buf = bytearray(tft.width() * 10 * 2)
     fbuf = framebuf.FrameBuffer(buf, tft.width(), 10, framebuf.RGB565)
     color = hsv_wheel()
+    start_time = time.ticks_ms()
     while True:
         r, g, b = next(color)
         fbuf.fill(color565(r, g, b))
         for j in range(0, height, 10):
             tft.bitmap(0, j, width, j + 10, buf)
+            count += 1
         if height % 10 != 0:
             tft.bitmap(
                 0,
@@ -68,5 +70,10 @@ def main():
                 height,
                 buf
             )
+            count += 1
+        if time.ticks_ms() - start_time >= 1000:
+            print(count)
+            count = 0
+            start_time = time.ticks_ms()
 
 main()
