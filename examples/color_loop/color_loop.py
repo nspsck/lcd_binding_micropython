@@ -1,5 +1,6 @@
 import tft_config
 import framebuf
+import time
 try:
     from tft_config import color565
 except:
@@ -47,32 +48,42 @@ def hsv_wheel():
         for i in range(0, 360):
             yield hsv2rgb(i, 255, 100)
 
+"""
+The delay is required to achieve the animation effect, since the
+new driver is way too fast at drawing.
+
+"""
 
 def main():
     tft = tft_config.config()
-    width = tft.width()
-    height = tft.height()
-    buf = bytearray(tft.width() * 10 * 2)
-    fbuf = framebuf.FrameBuffer(buf, tft.width(), 10, framebuf.RGB565)
+    x = tft.width()
+    y = tft.height()
+    speed = 1
+    delay = speed/1000
+    buf = bytearray(x * speed * 2)
+    fbuf = framebuf.FrameBuffer(buf, x, speed, framebuf.RGB565)
     color = hsv_wheel()
     start_time = time.ticks_ms()
+    count = 0
     while True:
         r, g, b = next(color)
         fbuf.fill(color565(r, g, b))
-        for j in range(0, height, 10):
-            tft.bitmap(0, j, width, j + 10, buf)
+        for j in range(0, y, speed):
+            tft.bitmap(0, j, x, j + speed, buf)
+            time.sleep(speed/1000)
             count += 1
-        if height % 10 != 0:
+        if y % speed != 0:
             tft.bitmap(
                 0,
-                height - height % 10,
-                width,
-                height,
+                y - y % speed,
+                x,
+                y,
                 buf
             )
+            time.sleep(speed/1000)
             count += 1
         if time.ticks_ms() - start_time >= 1000:
-            print(count)
+            print("Operations per second: %d" % count)
             count = 0
             start_time = time.ticks_ms()
 
