@@ -382,7 +382,6 @@ void hal_lcd_dpi_construct(mp_obj_base_t *self)
             mp_hal_get_pin_obj(dpi_obj->databus_obj[15]),
         },
         .disp_gpio_num = dpi_obj->disp_pin,
-        .user_ctx = NULL,
         .flags = {
             .fb_in_psram = 1, // allocate frame buffer in PSRAM
         },
