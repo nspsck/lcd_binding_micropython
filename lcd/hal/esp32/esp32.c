@@ -120,7 +120,7 @@ inline void hal_lcd_spi_panel_deinit(mp_obj_base_t *self)
             for (int i = 0; i < 3; i++) {
                 if (pins[i] != -1) {
                      esp_rom_gpio_pad_select_gpio(pins[i]);
-                    gpio_iomux_out(pins[i], SIG_GPIO_OUT_IDX, false, false);
+                    gpio_iomux_out(pins[i], SIG_GPIO_OUT_IDX, false);
                     gpio_set_direction(pins[i], GPIO_MODE_INPUT);
                 }
             }
