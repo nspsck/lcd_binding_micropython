@@ -255,7 +255,7 @@ STATIC mp_obj_t mp_lcd_rm67162_init(mp_obj_t self_in)
 
     write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) {
         self->madctl_val,
-    }, 1)
+    }, 1);
 
     write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) {
         self->madctl_val,
@@ -265,22 +265,23 @@ STATIC mp_obj_t mp_lcd_rm67162_init(mp_obj_t self_in)
         self->colmod_cal,
     }, 1);
 
+    // turn on display
     write_cmd(self, LCD_CMD_DISPON, NULL, 0);
 
     /* if (self->lcd_panel_p) {
-        //self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_SLPOUT, NULL, 0);
+        self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_SLPOUT, NULL, 0);
         
 
-        /* self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_MADCTL, (uint8_t[]) {
+        self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_MADCTL, (uint8_t[]) {
             self->madctl_val,
-        }, 1); */
+        }, 1);
 
-        /* self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_COLMOD, (uint8_t[]) {
+        self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_COLMOD, (uint8_t[]) {
             self->colmod_cal,
-        }, 1); */
+        }, 1);
 
-        // turn on display
-        /* self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_DISPON, NULL, 0); */
+        
+        self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_DISPON, NULL, 0);
     } */
 
     return mp_const_none;
@@ -411,7 +412,7 @@ STATIC mp_obj_t mp_lcd_rm67162_swap_xy(mp_obj_t self_in, mp_obj_t swap_axes_in)
         self->madctl_val &= ~(1 << 5);
     }
 
-    write_cmd(self->bus_obj, LCD_CMD_MADCTL, (uint8_t[]) {
+    write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) {
             self->madctl_val
     }, 1);
 
@@ -537,7 +538,7 @@ STATIC mp_obj_t mp_lcd_rm67162_brightness(mp_obj_t self_in, mp_obj_t brightness_
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_lcd_rm67162_backlight_obj, mp_lcd_rm67162_brightness);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_lcd_rm67162_brightness_obj, mp_lcd_rm67162_brightness);
 
 
 STATIC mp_obj_t mp_lcd_rm67162_width(mp_obj_t self_in)
@@ -683,7 +684,7 @@ STATIC const mp_rom_map_elem_t mp_lcd_rm67162_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_deinit),        MP_ROM_PTR(&mp_lcd_rm67162_deinit_obj)        },
     { MP_ROM_QSTR(MP_QSTR_reset),         MP_ROM_PTR(&mp_lcd_rm67162_reset_obj)         },
     { MP_ROM_QSTR(MP_QSTR_init),          MP_ROM_PTR(&mp_lcd_rm67162_init_obj)          },
-    { MP_ROM_QSTR(MP_QSTR_custom_init),   MP_ROM_PTR(&mp_lcd_rm67162_custom_init_obj)   },
+    /* { MP_ROM_QSTR(MP_QSTR_custom_init),   MP_ROM_PTR(&mp_lcd_rm67162_custom_init_obj)   }, */
     { MP_ROM_QSTR(MP_QSTR_bitmap),        MP_ROM_PTR(&mp_lcd_rm67162_bitmap_obj)        },
     { MP_ROM_QSTR(MP_QSTR_mirror),        MP_ROM_PTR(&mp_lcd_rm67162_mirror_obj)        },
     { MP_ROM_QSTR(MP_QSTR_swap_xy),       MP_ROM_PTR(&mp_lcd_rm67162_swap_xy_obj)       },
