@@ -70,7 +70,7 @@ def main():
         fbuf.fill(color565(r, g, b))
         for j in range(0, y, speed):
             tft.bitmap(0, j, x, j + speed, buf)
-            time.sleep(speed/1000)
+            time.sleep(delay)
             count += 1
         if y % speed != 0:
             tft.bitmap(
@@ -80,7 +80,7 @@ def main():
                 y,
                 buf
             )
-            time.sleep(speed/1000)
+            time.sleep(delay)
             count += 1
         if time.ticks_ms() - start_time >= 1000:
             print("Operations per second: %d" % count)
