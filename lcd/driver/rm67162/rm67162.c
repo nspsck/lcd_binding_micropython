@@ -18,7 +18,6 @@ typedef struct _mp_lcd_rm67162_obj_t {
     mp_obj_base_t *bus_obj;
     mp_lcd_panel_p_t *lcd_panel_p;
     mp_obj_t reset;
-    mp_obj_t backlight;
     bool reset_level;
     uint8_t color_space;
 
@@ -54,7 +53,7 @@ typedef struct _Polygon {
 STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd,const void *buf, int len) {
     if (self->lcd_panel_p) {
             self->lcd_panel_p->tx_param(self->bus_obj, cmd, buf, len);
-        }
+    }
 }
 
 //esp_lcd_panel_io_tx_param() is used to write cmd through spi
@@ -73,18 +72,6 @@ STATIC void set_rotation(mp_lcd_rm67162_obj_t *self, uint8_t rotation)
     self->madctl_val |= self->rotations[rotation].madctl;
 
     write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) { self->madctl_val }, 1);
-
-/*
-    // tx param
-    if (self->lcd_panel_p) {
-        self->lcd_panel_p->tx_param(
-            self->bus_obj,
-            LCD_CMD_MADCTL,
-            (uint8_t[]) { self->madctl_val },
-            1
-        );
-    }
-*/
 
     self->width = self->rotations[rotation].width;
     self->height = self->rotations[rotation].height;
@@ -118,7 +105,6 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     enum {
         ARG_bus,
         ARG_reset,
-        // ARG_backlight,
         ARG_reset_level,
         ARG_color_space,
         ARG_bpp
@@ -126,7 +112,6 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_bus,            MP_ARG_OBJ | MP_ARG_REQUIRED, {.u_obj = MP_OBJ_NULL}     },
         { MP_QSTR_reset,          MP_ARG_OBJ | MP_ARG_KW_ONLY,  {.u_obj = MP_OBJ_NULL}     },
-        // { MP_QSTR_backlight,      MP_ARG_OBJ | MP_ARG_KW_ONLY,  {.u_obj = MP_OBJ_NULL}     },
         { MP_QSTR_reset_level,    MP_ARG_BOOL | MP_ARG_KW_ONLY, {.u_bool = false}          },
         { MP_QSTR_color_space,    MP_ARG_INT | MP_ARG_KW_ONLY,  {.u_int = COLOR_SPACE_RGB} },
         { MP_QSTR_bpp,            MP_ARG_INT | MP_ARG_KW_ONLY,  {.u_int = 16}              },
@@ -156,7 +141,6 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
 
     self->reset       = args[ARG_reset].u_obj;
-    // self->backlight      = args[ARG_backlight].u_obj;
     self->reset_level = args[ARG_reset_level].u_bool;
     self->color_space = args[ARG_color_space].u_int;
     self->bpp         = args[ARG_bpp].u_int;
@@ -166,12 +150,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
         mp_hal_pin_obj_t reset_pin = mp_hal_get_pin_obj(self->reset);
         mp_hal_pin_output(reset_pin);
     }
-
-    // init backlight
-    // if (self->backlight != MP_OBJ_NULL) {
-    //     mp_hal_pin_obj_t backlight_pin = mp_hal_get_pin_obj(self->backlight);
-    //     mp_hal_pin_output(backlight_pin);
-    // }
+    
 
     switch (self->color_space) {
         case COLOR_SPACE_RGB:
@@ -256,9 +235,10 @@ STATIC mp_obj_t mp_lcd_rm67162_reset(mp_obj_t self_in)
         mp_hal_pin_write(reset_pin, !self->reset_level);
         mp_hal_delay_us(200 * 1000);
     } else {
-        if (self->lcd_panel_p) {
+        write_cmd(self, LCD_CMD_SWRESET, NULL, 0);
+        /* if (self->lcd_panel_p) {
             self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_SWRESET, NULL, 0);
-        }
+        } */
     }
 
     return mp_const_none;
@@ -270,28 +250,45 @@ STATIC mp_obj_t mp_lcd_rm67162_init(mp_obj_t self_in)
 {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
-    if (self->lcd_panel_p) {
-        self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_SLPOUT, NULL, 0);
-        mp_hal_delay_us(100 * 1000);
+    write_cmd(self, LCD_CMD_SLPOUT, NULL, 0);     //sleep out
+    mp_hal_delay_us(100 * 1000);
 
-        self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_MADCTL, (uint8_t[]) {
+    write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) {
+        self->madctl_val,
+    }, 1)
+
+    write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) {
+        self->madctl_val,
+    }, 1);
+
+    write_cmd(self, LCD_CMD_COLMOD, (uint8_t[]) {
+        self->colmod_cal,
+    }, 1);
+
+    write_cmd(self, LCD_CMD_DISPON, NULL, 0);
+
+    /* if (self->lcd_panel_p) {
+        //self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_SLPOUT, NULL, 0);
+        
+
+        /* self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_MADCTL, (uint8_t[]) {
             self->madctl_val,
-        }, 1);
+        }, 1); */
 
-        self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_COLMOD, (uint8_t[]) {
+        /* self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_COLMOD, (uint8_t[]) {
             self->colmod_cal,
-        }, 1);
+        }, 1); */
 
         // turn on display
-        self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_DISPON, NULL, 0);
-    }
+        /* self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_DISPON, NULL, 0); */
+    } */
 
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_init_obj, mp_lcd_rm67162_init);
 
 
-STATIC mp_obj_t mp_lcd_rm67162_custom_init(mp_obj_t self_in, mp_obj_t cmd_list_in)
+/* STATIC mp_obj_t mp_lcd_rm67162_custom_init(mp_obj_t self_in, mp_obj_t cmd_list_in)
 {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_int_t id = 0;
@@ -313,7 +310,7 @@ STATIC mp_obj_t mp_lcd_rm67162_custom_init(mp_obj_t self_in, mp_obj_t cmd_list_i
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_lcd_rm67162_custom_init_obj, mp_lcd_rm67162_custom_init);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_lcd_rm67162_custom_init_obj, mp_lcd_rm67162_custom_init); */
 
 
 STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
@@ -330,7 +327,24 @@ STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
     y_start += self->y_gap;
     y_end += self->y_gap;
 
-    if (self->lcd_panel_p) {
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(args_in[5], &bufinfo, MP_BUFFER_READ);
+    write_cmd(self, LCD_CMD_CASET, (uint8_t[]) {
+        ((x_start >> 8) & 0xFF),
+        (x_start & 0xFF),
+        (((x_end - 1) >> 8) & 0xFF),
+        ((x_end - 1) & 0xFF),
+    }, 4);
+    write_cmd(self, LCD_CMD_RASET, (uint8_t[]) {
+        ((y_start >> 8) & 0xFF),
+        (y_start & 0xFF),
+        (((y_end - 1) >> 8) & 0xFF),
+        ((y_end - 1) & 0xFF),
+    }, 4);
+    size_t len = ((x_end - x_start) * (y_end - y_start) * self->fb_bpp / 8);
+    self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, bufinfo.buf, len);
+
+    /* if (self->lcd_panel_p) {
         mp_buffer_info_t bufinfo;
         mp_get_buffer_raise(args_in[5], &bufinfo, MP_BUFFER_READ);
         self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_CASET, (uint8_t[]) {
@@ -347,7 +361,7 @@ STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
         }, 4);
         size_t len = ((x_end - x_start) * (y_end - y_start) * self->fb_bpp / 8);
         self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, bufinfo.buf, len);
-    }
+    } */
 
     //gc_collect(); //removed to improve the performance
     return mp_const_none;
@@ -372,11 +386,15 @@ STATIC mp_obj_t mp_lcd_rm67162_mirror(mp_obj_t self_in,
         self->madctl_val &= ~(1 << 7);
     }
 
-    if (self->lcd_panel_p) {
+    write_cmd(self, LCD_CMD_MADCTL, (uint8_t[]) {
+            self->madctl_val
+    }, 1);
+
+    /* if (self->lcd_panel_p) {
         self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_MADCTL, (uint8_t[]) {
             self->madctl_val
         }, 1);
-    }
+    } */
 
     return mp_const_none;
 }
@@ -393,11 +411,15 @@ STATIC mp_obj_t mp_lcd_rm67162_swap_xy(mp_obj_t self_in, mp_obj_t swap_axes_in)
         self->madctl_val &= ~(1 << 5);
     }
 
-    if (self->lcd_panel_p) {
+    write_cmd(self->bus_obj, LCD_CMD_MADCTL, (uint8_t[]) {
+            self->madctl_val
+    }, 1);
+
+    /* if (self->lcd_panel_p) {
         self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_MADCTL, (uint8_t[]) {
             self->madctl_val
         }, 1);
-    }
+    } */
 
     return mp_const_none;
 }
@@ -423,13 +445,15 @@ STATIC mp_obj_t mp_lcd_rm67162_invert_color(mp_obj_t self_in, mp_obj_t invert_in
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
     if (mp_obj_is_true(invert_in)) {
-        if (self->lcd_panel_p) {
+        write_cmd(self, LCD_CMD_INVON, NULL, 0);
+        /* if (self->lcd_panel_p) {
             self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_INVON, NULL, 0);
-        }
+        } */
     } else {
-        if (self->lcd_panel_p) {
+        write_cmd(self, LCD_CMD_INVOFF, NULL, 0);
+        /* if (self->lcd_panel_p) {
             self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_INVOFF, NULL, 0);
-        }
+        } */
     }
 
     return mp_const_none;
@@ -442,13 +466,15 @@ STATIC mp_obj_t mp_lcd_rm67162_disp_off(mp_obj_t self_in, mp_obj_t off_in)
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
     if (mp_obj_is_true(off_in)) {
-        if (self->lcd_panel_p) {
+        write_cmd(self, LCD_CMD_DISPOFF, NULL, 0);
+        /* if (self->lcd_panel_p) {
             self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_DISPOFF, NULL, 0);
-        }
+        } */
     } else {
-        if (self->lcd_panel_p) {
+        write_cmd(self, LCD_CMD_DISPON, NULL, 0);
+        /* if (self->lcd_panel_p) {
             self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_DISPON, NULL, 0);
-        }
+        } */
     }
 
     return mp_const_none;
@@ -460,11 +486,15 @@ STATIC mp_obj_t mp_lcd_rm67162_backlight_on(mp_obj_t self_in)
 {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
-    if (self->lcd_panel_p) {
+    write_cmd(self, LCD_CMD_WRDISBV, (uint8_t[]) {
+            0XFF
+    }, 1);
+
+    /* if (self->lcd_panel_p) {
         self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_WRDISBV, (uint8_t[]) {
             0XFF
         }, 1);
-    }
+    } */
 
     return mp_const_none;
 }
@@ -475,18 +505,22 @@ STATIC mp_obj_t mp_lcd_rm67162_backlight_off(mp_obj_t self_in)
 {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
-    if (self->lcd_panel_p) {
+    write_cmd(self, LCD_CMD_WRDISBV, (uint8_t[]) {
+            0x00
+    }, 1);
+
+    /* if (self->lcd_panel_p) {
         self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_WRDISBV, (uint8_t[]) {
             0x00
         }, 1);
-    }
+    } */
 
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_backlight_off_obj, mp_lcd_rm67162_backlight_off);
 
 
-STATIC mp_obj_t mp_lcd_rm67162_backlight(mp_obj_t self_in, mp_obj_t brightness_in)
+STATIC mp_obj_t mp_lcd_rm67162_brightness(mp_obj_t self_in, mp_obj_t brightness_in)
 {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
@@ -497,15 +531,13 @@ STATIC mp_obj_t mp_lcd_rm67162_backlight(mp_obj_t self_in, mp_obj_t brightness_i
         brightness = 0;
     }
 
-    if (self->lcd_panel_p) {
-        self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_WRDISBV, (uint8_t[]) {
+    write_cmd(self, LCD_CMD_WRDISBV, (uint8_t[]) {
             brightness & 0xFF
-        }, 1);
-    }
+    }, 1);
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_lcd_rm67162_backlight_obj, mp_lcd_rm67162_backlight);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_lcd_rm67162_backlight_obj, mp_lcd_rm67162_brightness);
 
 
 STATIC mp_obj_t mp_lcd_rm67162_width(mp_obj_t self_in)
@@ -554,7 +586,21 @@ STATIC mp_obj_t mp_lcd_rm67162_vscroll_area(size_t n_args, const mp_obj_t *args_
     mp_int_t vsa = mp_obj_get_int(args_in[2]);
     mp_int_t bfa = mp_obj_get_int(args_in[3]);
 
-    if (self->lcd_panel_p) {
+    write_cmd(
+            self,
+            LCD_CMD_VSCRDEF,
+            (uint8_t []) {
+                (tfa) >> 8,
+                (tfa) & 0xFF,
+                (vsa) >> 8,
+                (vsa) & 0xFF,
+                (bfa) >> 8,
+                (bfa) & 0xFF
+            },
+            6
+    );
+
+    /* if (self->lcd_panel_p) {
         self->lcd_panel_p->tx_param(
             self->bus_obj,
             LCD_CMD_VSCRDEF,
@@ -568,7 +614,7 @@ STATIC mp_obj_t mp_lcd_rm67162_vscroll_area(size_t n_args, const mp_obj_t *args_
             },
             6
         );
-    }
+    } */
 
     return mp_const_none;
 }
@@ -580,7 +626,30 @@ STATIC mp_obj_t mp_lcd_rm67162_vscroll_start(size_t n_args, const mp_obj_t *args
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
     mp_int_t vssa = mp_obj_get_int(args_in[1]);
 
-    if (self->lcd_panel_p) {
+    if (n_args > 2) {
+        if (mp_obj_is_true(args_in[2])) {
+            self->madctl_val |= LCD_CMD_ML_BIT;
+        } else {
+            self->madctl_val &= ~LCD_CMD_ML_BIT;
+        }
+    } else {
+        self->madctl_val &= ~LCD_CMD_ML_BIT;
+    }
+    write_cmd(
+        self,
+        LCD_CMD_MADCTL,
+        (uint8_t[]) { self->madctl_val, },
+        2
+    );
+
+    write_cmd(
+        self,
+        LCD_CMD_VSCSAD,
+        (uint8_t []) { (vssa) >> 8, (vssa) & 0xFF },
+        2
+    );
+
+    /* if (self->lcd_panel_p) {
         if (n_args > 2) {
             if (mp_obj_is_true(args_in[2])) {
                 self->madctl_val |= LCD_CMD_ML_BIT;
@@ -603,7 +672,7 @@ STATIC mp_obj_t mp_lcd_rm67162_vscroll_start(size_t n_args, const mp_obj_t *args
             (uint8_t []) { (vssa) >> 8, (vssa) & 0xFF },
             2
         );
-    }
+    } */
 
     return mp_const_none;
 }
@@ -623,7 +692,7 @@ STATIC const mp_rom_map_elem_t mp_lcd_rm67162_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_disp_off),      MP_ROM_PTR(&mp_lcd_rm67162_disp_off_obj)      },
     { MP_ROM_QSTR(MP_QSTR_backlight_on),  MP_ROM_PTR(&mp_lcd_rm67162_backlight_on_obj)  },
     { MP_ROM_QSTR(MP_QSTR_backlight_off), MP_ROM_PTR(&mp_lcd_rm67162_backlight_off_obj) },
-    { MP_ROM_QSTR(MP_QSTR_backlight),     MP_ROM_PTR(&mp_lcd_rm67162_backlight_obj)     },
+    { MP_ROM_QSTR(MP_QSTR_brightness),     MP_ROM_PTR(&mp_lcd_rm67162_brightness_obj)     },
     { MP_ROM_QSTR(MP_QSTR_height),        MP_ROM_PTR(&mp_lcd_rm67162_height_obj)        },
     { MP_ROM_QSTR(MP_QSTR_width),         MP_ROM_PTR(&mp_lcd_rm67162_width_obj)         },
     { MP_ROM_QSTR(MP_QSTR_rotation),      MP_ROM_PTR(&mp_lcd_rm67162_rotation_obj)      },
