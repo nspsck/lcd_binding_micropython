@@ -303,8 +303,8 @@ STATIC mp_obj_t mp_lcd_rm67162_send_cmd(size_t n_args, const mp_obj_t *args_in)
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
 
     uint8_t cmd = mp_obj_get_int(args_in[1]);
-    uint8_t c_bits = mp_obj_get_int(args_in[3]);
-    uint8_t e_bits = mp_obj_get_int(args_in[2]);
+    uint8_t c_bits = mp_obj_get_int(args_in[2]);
+    uint8_t e_bits = mp_obj_get_int(args_in[3]);
     
     write_cmd(self, cmd, (uint8_t[]) {
         c_bits
@@ -312,7 +312,7 @@ STATIC mp_obj_t mp_lcd_rm67162_send_cmd(size_t n_args, const mp_obj_t *args_in)
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_send_cmd_obj, mp_lcd_rm67162_send_cmd);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_send_cmd_obj, 4, 4 mp_lcd_rm67162_send_cmd);
 
 
 STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
