@@ -312,7 +312,7 @@ STATIC mp_obj_t mp_lcd_rm67162_send_cmd(size_t n_args, const mp_obj_t *args_in)
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_send_cmd_obj, 4, 4 mp_lcd_rm67162_send_cmd);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_send_cmd_obj, 4, 4, mp_lcd_rm67162_send_cmd);
 
 
 STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
