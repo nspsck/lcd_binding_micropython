@@ -150,7 +150,6 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
         mp_hal_pin_obj_t reset_pin = mp_hal_get_pin_obj(self->reset);
         mp_hal_pin_output(reset_pin);
     }
-    
 
     switch (self->color_space) {
         case COLOR_SPACE_RGB:
@@ -236,9 +235,6 @@ STATIC mp_obj_t mp_lcd_rm67162_reset(mp_obj_t self_in)
         mp_hal_delay_us(200 * 1000);
     } else {
         write_cmd(self, LCD_CMD_SWRESET, NULL, 0);
-        /* if (self->lcd_panel_p) {
-            self->lcd_panel_p->tx_param(self->bus_obj, LCD_CMD_SWRESET, NULL, 0);
-        } */
     }
 
     return mp_const_none;
