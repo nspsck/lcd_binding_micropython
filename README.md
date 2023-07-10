@@ -11,12 +11,21 @@ Contents:
 - [Future plans](#future-plans)
 
 ## Introduction
-This is a fork from Ibuque's lcd_binding_micropython specific for the RM67162 (Used in T-AMOLED S3). Original repo: [lcd_binding_micropython](https://github.com/lbuque/lcd_binding_micropython). The performance has been increased by more than 700%. Now supports the newest Micropython using esp-idf v5.0.2.
-Currently halting the project, because Micropython will be updating the esp-idf version to suppport new esp32c6.
+This is a fork from Ibuque's lcd_binding_micropython specific for the RM67162 (Used in T-AMOLED S3). Original repo: [lcd_binding_micropython](https://github.com/lbuque/lcd_binding_micropython). 
 
 This driver is based on [esp_lcd](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/lcd.html).
 
-Currently only some basic functions are supported. It will be compatible with [st7789_mpy](https://github.com/russhughes/st7789_mpy) in the future.
+The performance has been increased by more than 700% (only applies to the RM67162 driver). Now supports the newest Micropython using esp-idf v5.0.2.
+Currently halting the project, because Micropython will be updating the esp-idf version to suppport new esp32c6.
+
+- changed the program structure for more readability
+- added brightness control
+- fixed the initialization bug using tft_config.py
+
+To-DO:
+- Drawing functions: fill_rect, rect, fill_cirlce, cirlce, pixel, line, vline, hline
+- Fontsupport: bitmap fonts
+- png support
 
 ## Features
 
