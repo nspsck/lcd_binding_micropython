@@ -11,7 +11,8 @@ Contents:
 - [Future plans](#future-plans)
 
 ## Introduction
-This is a fork from Ibuque's lcd_binding_micropython specific for the RM67162 (Used in T-AMOLED S3). Original repo: [lcd_binding_micropython](https://github.com/lbuque/lcd_binding_micropython).
+This is a fork from Ibuque's lcd_binding_micropython specific for the RM67162 (Used in T-AMOLED S3). Original repo: [lcd_binding_micropython](https://github.com/lbuque/lcd_binding_micropython). The performance has been increased by more than 700%. Now supports the newest Micropython using esp-idf v5.0.2.
+Currently halting the project, because Micropython will be updating the esp-idf version to suppport new esp32c6.
 
 This driver is based on [esp_lcd](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/lcd.html).
 
