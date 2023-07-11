@@ -609,7 +609,7 @@ STATIC const mp_rom_map_elem_t mp_lcd_rm67162_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_reset),         MP_ROM_PTR(&mp_lcd_rm67162_reset_obj)         },
     { MP_ROM_QSTR(MP_QSTR_init),          MP_ROM_PTR(&mp_lcd_rm67162_init_obj)          },
     { MP_ROM_QSTR(MP_QSTR_send_cmd),      MP_ROM_PTR(&mp_lcd_rm67162_send_cmd_obj)      },
-    { MP_ROM_QSTR(MP_QSTR_pixel)          MP_ROM_PTR(&mp_lcd_rm67162_pixel_obj)         },
+    { MP_ROM_QSTR(MP_QSTR_pixel),         MP_ROM_PTR(&mp_lcd_rm67162_pixel_obj)         },
     { MP_ROM_QSTR(MP_QSTR_bitmap),        MP_ROM_PTR(&mp_lcd_rm67162_bitmap_obj)        },
     { MP_ROM_QSTR(MP_QSTR_mirror),        MP_ROM_PTR(&mp_lcd_rm67162_mirror_obj)        },
     { MP_ROM_QSTR(MP_QSTR_swap_xy),       MP_ROM_PTR(&mp_lcd_rm67162_swap_xy_obj)       },
