@@ -330,11 +330,11 @@ void draw_pixel(mp_lcd_rm67162_obj_t *self, int16_t x, int16_t y, uint16_t color
 }
 
 
-STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    mp_int_t x = mp_obj_get_int(args[1]);
-    mp_int_t y = mp_obj_get_int(args[2]);
-    mp_int_t color = mp_obj_get_int(args[3]);
+    mp_int_t x = mp_obj_get_int(args_in[1]);
+    mp_int_t y = mp_obj_get_int(args_in[2]);
+    mp_int_t color = mp_obj_get_int(args_in[3]);
 
     draw_pixel(self, x, y, color);
 
