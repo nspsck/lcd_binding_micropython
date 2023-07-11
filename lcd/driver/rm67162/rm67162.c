@@ -49,6 +49,11 @@ typedef struct _Polygon {
 #define ABS(N) (((N) < 0) ? (-(N)) : (N))
 #define mp_hal_delay_ms(delay) (mp_hal_delay_us(delay * 1000))
 
+int mod(int x, int m) {
+    int r = x % m;
+    return (r < 0) ? r + m : r;
+}
+
 
 STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd,const void *buf, int len) {
     if (self->lcd_panel_p) {
@@ -268,30 +273,14 @@ STATIC mp_obj_t mp_lcd_rm67162_init(mp_obj_t self_in)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_init_obj, mp_lcd_rm67162_init);
 
-
-/* STATIC mp_obj_t mp_lcd_rm67162_custom_init(mp_obj_t self_in, mp_obj_t cmd_list_in)
-{
-    mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    mp_int_t id = 0;
-    mp_buffer_info_t args;
-    mp_int_t delay = 0;
-
-    mp_obj_tuple_t *cmd_list = MP_OBJ_TO_PTR(cmd_list_in);
-    for (size_t i = 0; i < cmd_list->len; i++) {
-        mp_obj_tuple_t *cmd = MP_OBJ_TO_PTR(cmd_list->items[i]);
-        id = mp_obj_get_int(cmd->items[0]);
-        mp_get_buffer_raise(cmd->items[1], &args, MP_BUFFER_READ);
-        delay = mp_obj_get_int(cmd->items[2]);
-
-        self->lcd_panel_p->tx_param(self->bus_obj, id, args.buf, args.len);
-        if (delay != 0) {
-            mp_hal_delay_us(delay * 1000);
-        }
-    }
-
-    return mp_const_none;
+void draw_pixel(mp_lcd_rm67162_obj_t *self, int16_x, int16_y, uint16_t color) {
+    
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_lcd_rm67162_custom_init_obj, mp_lcd_rm67162_custom_init); */
+
+STATIC mp_obj_t mp_lcd_rm67162_draw_pixel() {
+    
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(st7789_ST7789_pixel_obj, 4, 4, st7789_ST7789_pixel);
 
 
 STATIC mp_obj_t mp_lcd_rm67162_send_cmd(size_t n_args, const mp_obj_t *args_in)
