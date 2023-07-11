@@ -276,23 +276,14 @@ STATIC mp_obj_t mp_lcd_rm67162_init(mp_obj_t self_in)
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_init_obj, mp_lcd_rm67162_init);
 
 
-void param_list(uint8_t *len, const void* c_bits){
-    uint8_t temp[len];
-    for (int i = 0, i < len, i++) {
-        temp[i] = (c_bits >> ((len - 1 - i) * 8)) & 0xff;
-    }
-    return temp;
-}
-
-
 STATIC mp_obj_t mp_lcd_rm67162_send_cmd(size_t n_args, const mp_obj_t *args_in)
 {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
     uint8_t cmd = mp_obj_get_int(args_in[1]);
-    mp_int_t c_bits = mp_obj_get_int(args_in[2]);
+    uint8_t c_bits = mp_obj_get_int(args_in[2]);
     uint8_t len = mp_obj_get_int(args_in[3]);
 
-    write_cmd(self, cmd, param_list(len, c_bits), len);
+    write_cmd(self, cmd, (uint8_t[]){c_bits}, len);
 
     return mp_const_none;
 }
