@@ -55,36 +55,6 @@ int mod(int x, int m) {
 }
 
 
-void draw_pixel(mp_lcd_rm67162_obj_t *self, int16_t x, int16_t y, uint16_t color) {
-    if ((self->width < x) || (x < 0)) {
-        x = mod(x, self->width);
-    }
-    if ((self->width < y) || (y < 0)) {
-        y = mod(y, self->width);
-    }
-
-    write_cmd(self, LCD_CMD_CASET, (uint8_t[]) {
-        ((x >> 8) & 0xFF),
-        (x & 0xFF),
-        (((x - 1) >> 8) & 0xFF),
-        ((x - 1) & 0xFF),
-    }, 4);
-    write_cmd(self, LCD_CMD_RASET, (uint8_t[]) {
-        ((y >> 8) & 0xFF),
-        (y & 0xFF),
-        (((y - 1) >> 8) & 0xFF),
-        ((y - 1) & 0xFF),
-    }, 4);
-    self->lcd_panel_p->tx_color(
-        self->bus_obj, 
-        LCD_CMD_RAMWR, 
-        (uint8_t[]) {
-            (color >> 8) & 0xFF,
-            color & 0xFF
-        }, 
-        2);
-}
-
 
 STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd,const void *buf, int len) {
     if (self->lcd_panel_p) {
@@ -101,6 +71,7 @@ STATIC void write_cmd(mp_lcd_rm67162_obj_t *self, int cmd, const void *data, int
         write_spi(self, cmd, data, len);
     }
 }
+
 
 STATIC void set_rotation(mp_lcd_rm67162_obj_t *self, uint8_t rotation)
 {
@@ -325,6 +296,37 @@ STATIC mp_obj_t mp_lcd_rm67162_send_cmd(size_t n_args, const mp_obj_t *args_in)
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_send_cmd_obj, 4, 4, mp_lcd_rm67162_send_cmd);
 
 
+void draw_pixel(mp_lcd_rm67162_obj_t *self, int16_t x, int16_t y, uint16_t color) {
+    if ((self->width < x) || (x < 0)) {
+        x = mod(x, self->width);
+    }
+    if ((self->width < y) || (y < 0)) {
+        y = mod(y, self->width);
+    }
+
+    write_cmd(self, LCD_CMD_CASET, (uint8_t[]) {
+        ((x >> 8) & 0xFF),
+        (x & 0xFF),
+        (((x - 1) >> 8) & 0xFF),
+        ((x - 1) & 0xFF),
+    }, 4);
+    write_cmd(self, LCD_CMD_RASET, (uint8_t[]) {
+        ((y >> 8) & 0xFF),
+        (y & 0xFF),
+        (((y - 1) >> 8) & 0xFF),
+        ((y - 1) & 0xFF),
+    }, 4);
+    self->lcd_panel_p->tx_color(
+        self->bus_obj, 
+        LCD_CMD_RAMWR, 
+        (uint8_t[]) {
+            (color >> 8) & 0xFF,
+            color & 0xFF
+        }, 
+        2);
+}
+
+
 STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
     mp_int_t x = mp_obj_get_int(args[1]);
@@ -332,7 +334,7 @@ STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args) {
     mp_int_t color = mp_obj_get_int(args[3]);
 
     draw_pixel(self, x, y, color);
-    
+
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lcd_rm67162_pixel);
