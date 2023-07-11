@@ -276,7 +276,7 @@ STATIC mp_obj_t mp_lcd_rm67162_init(mp_obj_t self_in)
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_init_obj, mp_lcd_rm67162_init);
 
 
-uint8_t[] param_list(uint8_t *len, const void* c_bits){
+void param_list(uint8_t *len, const void* c_bits){
     uint8_t temp[len];
     for (int i = 0, i < len, i++) {
         temp[i] = (c_bits >> ((len - 1 - i) * 8)) & 0xff;
