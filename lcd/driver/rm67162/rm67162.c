@@ -285,10 +285,10 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_send_cmd_obj, 4, 4, mp
 
 
 STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-    if (x0 < 0 || x0 > x1 || x1 >= self->width) {
+    if (x0 > x1 || x1 >= self->width) {
         return;
     }
-    if (y0 < 0 || y0 > y1 || y1 >= self->height) {
+    if (y0 > y1 || y1 >= self->height) {
         return;
     }
 
@@ -301,10 +301,10 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 
 STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t color) {
-    if ((self->width < x) || (x < 0)) {
+    if ((self->width < x)) {
         x = mod(x, self->width);
     }
-    if ((self->width < y) || (y < 0)) {
+    if ((self->width < y)) {
         y = mod(y, self->width);
     }
 
@@ -345,7 +345,7 @@ STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lcd_rm67162_pixel);
 
 
-STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, color) {
+STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
     return;
 }
 
