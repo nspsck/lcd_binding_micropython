@@ -460,19 +460,28 @@ STATIC mp_obj_t mp_lcd_rm67162_invert_color(mp_obj_t self_in, mp_obj_t invert_in
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_lcd_rm67162_invert_color_obj, mp_lcd_rm67162_invert_color);
 
 
-STATIC mp_obj_t mp_lcd_rm67162_disp_off(mp_obj_t self_in, mp_obj_t off_in)
+STATIC mp_obj_t mp_lcd_rm67162_disp_off(mp_obj_t self_in)
 {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
-    if (mp_obj_is_true(off_in)) {
-        write_spi(self, LCD_CMD_DISPOFF, NULL, 0);
-    } else {
-        write_spi(self, LCD_CMD_DISPON, NULL, 0);
-    }
+    write_spi(self, LCD_CMD_SLPIN, NULL, 0);
+    write_spi(self, LCD_CMD_DISPOFF, NULL, 0);
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(mp_lcd_rm67162_disp_off_obj, mp_lcd_rm67162_disp_off);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_disp_off_obj, mp_lcd_rm67162_disp_off);
+
+
+STATIC mp_obj_t mp_lcd_rm67162_disp_on(mp_obj_t self_in)
+{
+    mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(self_in);
+
+    write_spi(self, LCD_CMD_SLPOUT, NULL, 0);
+    write_spi(self, LCD_CMD_DISPON, NULL, 0);
+
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_lcd_rm67162_disp_on_obj, mp_lcd_rm67162_disp_on);
 
 
 STATIC mp_obj_t mp_lcd_rm67162_backlight_on(mp_obj_t self_in)
@@ -632,6 +641,7 @@ STATIC const mp_rom_map_elem_t mp_lcd_rm67162_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_set_gap),       MP_ROM_PTR(&mp_lcd_rm67162_set_gap_obj)       },
     { MP_ROM_QSTR(MP_QSTR_invert_color),  MP_ROM_PTR(&mp_lcd_rm67162_invert_color_obj)  },
     { MP_ROM_QSTR(MP_QSTR_disp_off),      MP_ROM_PTR(&mp_lcd_rm67162_disp_off_obj)      },
+    { MP_ROM_QSTR(MP_QSTR_disp_on),       MP_ROM_PTR(&mp_lcd_rm67162_disp_on_obj)       },
     { MP_ROM_QSTR(MP_QSTR_backlight_on),  MP_ROM_PTR(&mp_lcd_rm67162_backlight_on_obj)  },
     { MP_ROM_QSTR(MP_QSTR_backlight_off), MP_ROM_PTR(&mp_lcd_rm67162_backlight_off_obj) },
     { MP_ROM_QSTR(MP_QSTR_brightness),    MP_ROM_PTR(&mp_lcd_rm67162_brightness_obj)    },
