@@ -350,6 +350,12 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
 }
 
 
+STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
+    return;
+}
+
+
+
 STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
 {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
