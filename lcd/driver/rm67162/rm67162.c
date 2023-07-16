@@ -314,7 +314,7 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
     if (chunks) {
         uint16_t buffer[buffer_size];
         for (int i = 0; i < buffer_size; i++) {
-            buffer[i] = color;
+            buffer[i] = c;
         } 
         for (int i = 0; i < chunks; i++) {
             write_color(self, (uint8_t *)buffer, buffer_size * 2);
@@ -327,7 +327,7 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
     if (rest) {
             uint16_t buffer[rest];
             for (int i = 0; i < rest; i++) {
-                buffer[i] = color;
+                buffer[i] = c;
             } 
             write_color(self, (uint8_t *)buffer, rest * 2);
         }
@@ -387,7 +387,7 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
     }
 
     if (l == 0) {
-        draw_pixel(x, y, color);
+        draw_pixel(self, x, y, color);
     } else {
         set_area(self, x, y, x + l, y);
         fill_color_buffer(self, color, l);
@@ -410,7 +410,7 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
     }
 
     if (l == 0) {
-        draw_pixel(x, y, color);
+        draw_pixel(self, x, y, color);
     } else {
         set_area(self, x, y, x, y + l);
         fill_color_buffer(self, color, l);
