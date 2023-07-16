@@ -298,8 +298,16 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
         return;
     }
 
-    uint8_t bufx[4] = {x0 >> 8, x0 & 0xFF, x1 >> 8, x1 & 0xFF};
-    uint8_t bufy[4] = {y0 >> 8, y0 & 0xFF, y1 >> 8, y1 & 0xFF};
+    uint8_t bufx[4] = {
+        ((x0 >> 8) & 0xFF),
+        (x0 & 0xFF),
+        ((x1 >> 8) & 0xFF),
+        (x1 & 0xFF)};
+    uint8_t bufy[4] = {
+        ((y0 >> 8) & 0xFF),
+        (y0 & 0xFF),
+        ((y1 >> 8) & 0xFF),
+        (y1 & 0xFF)};
     write_spi(self, LCD_CMD_CASET, bufx, 4);
     write_spi(self, LCD_CMD_RASET, bufy, 4);
 }
@@ -346,13 +354,13 @@ STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
         ((x >> 8) & 0xFF),
         (x & 0xFF),
         ((x >> 8) & 0xFF),
-        (x & 0xFF),
+        (x & 0xFF)
     }, 4);
     write_spi(self, LCD_CMD_RASET, (uint8_t[]) {
         ((y >> 8) & 0xFF),
         (y & 0xFF),
         ((y >> 8) & 0xFF),
-        (y & 0xFF),
+        (y & 0xFF)
     }, 4);
     write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2);
 }
@@ -374,7 +382,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
     set_area(self, 0, 0, self->width - 1, self->height - 1);
-    fill_color_buffer(self, color, 64320); 
+    fill_color_buffer(self, color, 128640); 
     // because of the c/cpp promotion, this does not exceed the maximum value of uint16_t.
 }
 
