@@ -382,7 +382,7 @@ STATIC mp_obj_t mp_lcd_rm67162_fill(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
     uint16_t color = mp_obj_get_int(args_in[1]);
 
-    fast_fill(color);
+    fast_fill(self, color);
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 2, 2, mp_lcd_rm67162_fill);
