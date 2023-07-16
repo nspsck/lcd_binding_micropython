@@ -310,7 +310,8 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
     int chunks = len / buffer_size;
     int rest = len % buffer_size;
     uint16_t c = _swap_bytes(color);
-
+    mp_print_float(chunks);
+    mp_print_float(rest);
     if (chunks) {
         uint16_t buffer[buffer_size];
         for (int i = 0; i < buffer_size; i++) {
@@ -318,8 +319,10 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
         } 
         for (int i = 0; i < chunks; i++) {
             write_color(self, (uint8_t *)buffer, buffer_size * 2);
+            mp_print_float(i);
         }
         if (rest) {
+            mp_print_float(rest);
             write_color(self, (uint8_t *)buffer, rest * 2);
             return;
         }
