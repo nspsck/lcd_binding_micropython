@@ -311,6 +311,15 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
     int rest = len % buffer_size;
     uint16_t c = _swap_bytes(color);
 
+    mp_printf(
+        print,
+        "<RM67162 bus=%p, reset=%p, color_space=%s, bpp=%u>",
+        self->bus_obj,
+        self->reset,
+        color_space_desc[self->color_space],
+        self->bpp
+    );
+
     if (chunks) {
         uint16_t buffer[buffer_size];
         for (int i = 0; i < buffer_size; i++) {
@@ -373,10 +382,11 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
-    int w = self->width - 1;
-    int h = self->height - 1;
+    uint16_t w = self->width - 1;
+    uint16_t h = self->height - 1;
     set_area(self, 0, 0, w, h);
-    fill_color_buffer(self, color, w * h);
+    fill_color_buffer(self, color, w * h); 
+    // because of the c/cpp promotion, this does not exceed the maximum value of uint16_t.
 }
 
 
