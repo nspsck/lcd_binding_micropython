@@ -372,6 +372,22 @@ STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lcd_rm67162_pixel);
 
 
+STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
+    set_area(self, 0, 0, self->width - 1, self->height - 1);
+    fill_color_buffer(self, color, l);
+}
+
+
+STATIC mp_obj_t mp_lcd_rm67162_fill(size_t n_args, const mp_obj_t *args_in) {
+    mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
+    uint16_t color = mp_obj_get_int(args_in[1]);
+
+    fast_fill(color);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 2, 2, mp_lcd_rm67162_fill);
+
+
 STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
     uint16_t max_width_value = self->width - 1;
     uint16_t max_height_value = self->height - 1;
@@ -731,6 +747,7 @@ STATIC const mp_rom_map_elem_t mp_lcd_rm67162_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_pixel),         MP_ROM_PTR(&mp_lcd_rm67162_pixel_obj)         },
     { MP_ROM_QSTR(MP_QSTR_hline),         MP_ROM_PTR(&mp_lcd_rm67162_hline_obj)         },
     { MP_ROM_QSTR(MP_QSTR_vline),         MP_ROM_PTR(&mp_lcd_rm67162_vline_obj)         },
+    { MP_ROM_QSTR(MP_QSTR_fill),          MP_ROM_PTR(&mp_lcd_rm67162_fill_obj)          },
     { MP_ROM_QSTR(MP_QSTR_bitmap),        MP_ROM_PTR(&mp_lcd_rm67162_bitmap_obj)        },
     { MP_ROM_QSTR(MP_QSTR_mirror),        MP_ROM_PTR(&mp_lcd_rm67162_mirror_obj)        },
     { MP_ROM_QSTR(MP_QSTR_swap_xy),       MP_ROM_PTR(&mp_lcd_rm67162_swap_xy_obj)       },
