@@ -55,6 +55,12 @@ int mod(int x, int m) {
 }
 
 
+STATIC void write_color(mp_lcd_rm67162_obj_t *self, const void *buf, int len) {
+    if (self->lcd_panel_p) {
+            self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, buf, len);
+    }
+}
+
 
 STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int len) {
     if (self->lcd_panel_p) {
@@ -320,14 +326,15 @@ STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
         ((y >> 8) & 0xFF),
         (y & 0xFF),
     }, 4);
-    self->lcd_panel_p->tx_color(
-        self->bus_obj, 
-        LCD_CMD_RAMWR, 
-        (uint8_t[]) {
-            (color >> 8) & 0xFF,
-            color & 0xFF
-        }, 
-        2);
+     /* self->lcd_panel_p->tx_color(
+         self->bus_obj, 
+         LCD_CMD_RAMWR, 
+         (uint8_t[]) {
+             (color >> 8) & 0xFF,
+             color & 0xFF
+         }, 
+         2); */
+    write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2);
 }
 
 
