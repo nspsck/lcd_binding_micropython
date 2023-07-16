@@ -311,15 +311,6 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
     int rest = len % buffer_size;
     uint16_t c = _swap_bytes(color);
 
-    mp_printf(
-        print,
-        "<RM67162 bus=%p, reset=%p, color_space=%s, bpp=%u>",
-        self->bus_obj,
-        self->reset,
-        color_space_desc[self->color_space],
-        self->bpp
-    );
-
     if (chunks) {
         uint16_t buffer[buffer_size];
         for (int i = 0; i < buffer_size; i++) {
