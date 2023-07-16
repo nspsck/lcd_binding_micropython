@@ -310,8 +310,7 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
     int chunks = len / buffer_size;
     int rest = len % buffer_size;
     uint16_t c = _swap_bytes(color);
-    mp_print_float(chunks);
-    mp_print_float(rest);
+
     if (chunks) {
         uint16_t buffer[buffer_size];
         for (int i = 0; i < buffer_size; i++) {
@@ -319,10 +318,8 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
         } 
         for (int i = 0; i < chunks; i++) {
             write_color(self, (uint8_t *)buffer, buffer_size * 2);
-            mp_print_float(i);
         }
         if (rest) {
-            mp_print_float(rest);
             write_color(self, (uint8_t *)buffer, rest * 2);
             return;
         }
@@ -376,10 +373,8 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
-    int w = self->width - 1;
-    int h = self->height - 1;
     set_area(self, 0, 0, self->width - 1, self->height - 1);
-    fill_color_buffer(self, color, w * h); 
+    fill_color_buffer(self, color, 128640); 
     // because of the c/cpp promotion, this does not exceed the maximum value of uint16_t.
 }
 
