@@ -302,7 +302,35 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
     uint8_t bufy[4] = {y0 >> 8, y0 & 0xFF, y1 >> 8, y1 & 0xFF};
     write_spi(self, LCD_CMD_CASET, bufx, 4);
     write_spi(self, LCD_CMD_RASET, bufy, 4);
-    write_spi(self, LCD_CMD_RAMWR, NULL, 0);
+}
+
+
+STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
+    const int buffer_size = 536;
+    int chunks = len / buffer_size;
+    int rest = len % buffer_size;
+    uint16_t c = _swap_bytes(color);
+
+    if (chunks) {
+        uint16_t buffer[buffer_size];
+        for (int i = 0; i < buffer_size; i++) {
+            buffer[i] = color;
+        } 
+        for (int i = 0; i < chunks; i++) {
+            write_color(self, (uint8_t *)buffer, buffer_size * 2);
+        }
+        if (rest) {
+            write_color(self, (uint8_t *)buffer, rest * 2);
+            return;
+        }
+    }
+    if (rest) {
+            uint16_t buffer[rest];
+            for (int i = 0; i < rest; i++) {
+                buffer[i] = color;
+            } 
+            write_color(self, (uint8_t *)buffer, rest * 2);
+        }
 }
 
 
@@ -326,23 +354,15 @@ STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
         ((y >> 8) & 0xFF),
         (y & 0xFF),
     }, 4);
-     /* self->lcd_panel_p->tx_color(
-         self->bus_obj, 
-         LCD_CMD_RAMWR, 
-         (uint8_t[]) {
-             (color >> 8) & 0xFF,
-             color & 0xFF
-         }, 
-         2); */
     write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2);
 }
 
 
 STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    mp_int_t x = mp_obj_get_int(args_in[1]);
-    mp_int_t y = mp_obj_get_int(args_in[2]);
-    mp_int_t color = mp_obj_get_int(args_in[3]);
+    uint16_t x = mp_obj_get_int(args_in[1]);
+    uint16_t y = mp_obj_get_int(args_in[2]);
+    uint16_t color = mp_obj_get_int(args_in[3]);
 
     color = _swap_bytes(color);
     draw_pixel(self, x, y, color);
@@ -353,13 +373,74 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 
 STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
-    return;
+    uint16_t max_width_value = self->width - 1;
+    uint16_t max_height_value = self->height - 1;
+
+    if (x > max_width_value) {
+        x = max_width_value;
+    }
+    if (y > max_height_value) {
+        y = max_height_value;
+    }
+    if (x + l > max_width_value) {
+        l = max_width_value - x;
+    }
+
+    if (l == 0) {
+        draw_pixel(x, y, color);
+    } else {
+        set_area(self, x, y, x + l, y);
+        fill_color_buffer(self, color, l);
+    }
 }
 
 
 STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
-    return;
+    uint16_t max_width_value = self->width - 1;
+    uint16_t max_height_value = self->height - 1;
+
+    if (x > max_width_value) {
+        x = max_width_value;
+    }
+    if (y > max_height_value) {
+        y = max_height_value;
+    }
+    if (y + l > max_height_value) {
+        l = max_height_value - y;
+    }
+
+    if (l == 0) {
+        draw_pixel(x, y, color);
+    } else {
+        set_area(self, x, y, x, y + l);
+        fill_color_buffer(self, color, l);
+    }
 }
+
+STATIC mp_obj_t mp_lcd_rm67162_hline(size_t n_args, const mp_obj_t *args_in) {
+    mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
+    uint16_t x = mp_obj_get_int(args_in[1]);
+    uint16_t y = mp_obj_get_int(args_in[2]);
+    uint16_t l = mp_obj_get_int(args_in[3]);
+    uint16_t color = mp_obj_get_int(args_in[4]);
+
+    fast_hline(self, x, y, l, color);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_hline_obj, 5, 5, mp_lcd_rm67162_hline);
+
+
+STATIC mp_obj_t mp_lcd_rm67162_vline(size_t n_args, const mp_obj_t *args_in) {
+    mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
+    uint16_t x = mp_obj_get_int(args_in[1]);
+    uint16_t y = mp_obj_get_int(args_in[2]);
+    uint16_t l = mp_obj_get_int(args_in[3]);
+    uint16_t color = mp_obj_get_int(args_in[4]);
+
+    fast_vline(self, x, y, l, color);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_vline_obj, 5, 5, mp_lcd_rm67162_vline);
 
 
 
@@ -648,6 +729,8 @@ STATIC const mp_rom_map_elem_t mp_lcd_rm67162_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_init),          MP_ROM_PTR(&mp_lcd_rm67162_init_obj)          },
     { MP_ROM_QSTR(MP_QSTR_send_cmd),      MP_ROM_PTR(&mp_lcd_rm67162_send_cmd_obj)      },
     { MP_ROM_QSTR(MP_QSTR_pixel),         MP_ROM_PTR(&mp_lcd_rm67162_pixel_obj)         },
+    { MP_ROM_QSTR(MP_QSTR_hline),         MP_ROM_PTR(&mp_lcd_rm67162_hline_obj)         },
+    { MP_ROM_QSTR(MP_QSTR_vline),         MP_ROM_PTR(&mp_lcd_rm67162_vline_obj)         },
     { MP_ROM_QSTR(MP_QSTR_bitmap),        MP_ROM_PTR(&mp_lcd_rm67162_bitmap_obj)        },
     { MP_ROM_QSTR(MP_QSTR_mirror),        MP_ROM_PTR(&mp_lcd_rm67162_mirror_obj)        },
     { MP_ROM_QSTR(MP_QSTR_swap_xy),       MP_ROM_PTR(&mp_lcd_rm67162_swap_xy_obj)       },
