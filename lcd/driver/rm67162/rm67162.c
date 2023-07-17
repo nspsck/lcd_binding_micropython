@@ -412,11 +412,11 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
         l = self->width - x;
     }
 
-    if (l = 0) {
+    if (l == 0) {
         return;
     }
 
-    if (l <= 1) {
+    if (l == 1) {
         draw_pixel(self, x, y, color);
     } else {
         set_area(self, x, y, x + l - 1, y);
