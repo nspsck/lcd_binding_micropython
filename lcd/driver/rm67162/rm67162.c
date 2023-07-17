@@ -12,37 +12,6 @@
 
 #include <string.h>
 
-// this is the actual C-structure for our new object
-typedef struct _mp_lcd_rm67162_obj_t {
-    mp_obj_base_t base;
-    mp_obj_base_t *bus_obj;
-    mp_lcd_panel_p_t *lcd_panel_p;
-    mp_obj_t reset;
-    bool reset_level;
-    uint8_t color_space;
-
-    uint16_t width;
-    uint16_t height;
-    uint8_t rotation;
-    lcd_panel_rotation_t rotations[4];   // list of rotation tuples
-    int x_gap;
-    int y_gap;
-    uint32_t bpp;
-    uint8_t fb_bpp;
-    uint8_t madctl_val; // save current value of LCD_CMD_MADCTL register
-    uint8_t colmod_cal; // save surrent value of LCD_CMD_COLMOD register
-} mp_lcd_rm67162_obj_t;
-
-typedef struct _Point {
-    mp_float_t x;
-    mp_float_t y;
-} Point;
-
-typedef struct _Polygon {
-    int length;
-    Point *points;
-} Polygon;
-
 #define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
 #define _swap_bytes(val) ((((val) >> 8) & 0x00FF) | (((val) << 8) & 0xFF00))
 
@@ -314,31 +283,6 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
-    /* const int buffer_size = 536;
-    int chunks = len / buffer_size;
-    int rest = len % buffer_size; */
-   /*  if (chunks) {
-        uint16_t buffer[buffer_size];
-        for (int i = 0; i < buffer_size; i++) {
-            buffer[i] = c;
-        } 
-        for (int i = 0; i < chunks; i++) {
-            write_color(self, (uint8_t *)buffer, buffer_size * 2);
-        }
-        if (rest) {
-            write_color(self, (uint8_t *)buffer, rest * 2);
-            return;
-        }
-    }
-    if (rest) {
-            uint16_t buffer[rest];
-            for (int i = 0; i < rest; i++) {
-                buffer[i] = c;
-            } 
-            write_color(self, (uint8_t *)buffer, rest * 2);
-        } */
-
-    //color = _swap_bytes(color);
     uint16_t buffer[len];
     for (int i = 0; i < len; i++) {
         buffer[i] = color;
