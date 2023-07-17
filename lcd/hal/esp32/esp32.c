@@ -32,8 +32,8 @@ void hal_lcd_qspi_panel_construct(mp_obj_base_t *self)
         .sclk_io_num = spi_obj->sck,
         .data2_io_num = qspi_panel_obj->databus_pins[2],
         .data3_io_num = qspi_panel_obj->databus_pins[3],
-        .max_transfer_sz = qspi_panel_obj->width * qspi_panel_obj->height * sizeof(uint16_t),
-        //.max_transfer_sz = (0x4000 * 16) + 8,
+        //.max_transfer_sz = qspi_panel_obj->width * qspi_panel_obj->height * sizeof(uint16_t),
+        .max_transfer_sz = (0x4000 * 16) + 8,
         .flags = SPICOMMON_BUSFLAG_MASTER | SPICOMMON_BUSFLAG_GPIO_PINS,
     };
     esp_err_t ret = spi_bus_initialize(spi_obj->host, &buscfg, SPI_DMA_CH_AUTO);
