@@ -5,6 +5,8 @@
 #include "lcd_panel_types.h"
 #include "rm67162_rotation.h"
 
+#include "esp_lcd_panel_io.h"
+
 #include "py/obj.h"
 #include "py/runtime.h"
 #include "mphalport.h"
@@ -469,7 +471,8 @@ STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
 
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args_in[5], &bufinfo, MP_BUFFER_READ);
-    write_spi(self, LCD_CMD_CASET, (uint8_t[]) {
+    esp_lcd_panel_draw_bitmap(self->panel_handle, x_start, y_start, x_end, y_end, bufinfo.buf);
+    /* write_spi(self, LCD_CMD_CASET, (uint8_t[]) {
         ((x_start >> 8) & 0x03),
         (x_start & 0xFF),
         (((x_end - 1) >> 8) & 0x03),
@@ -482,7 +485,7 @@ STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
         ((y_end - 1) & 0xFF),
     }, 4);
     size_t len = ((x_end - x_start) * (y_end - y_start) * self->fb_bpp / 8);
-    self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, bufinfo.buf, len);
+    self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, bufinfo.buf, len); */
 
     return mp_const_none;
 }
