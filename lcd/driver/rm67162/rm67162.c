@@ -45,6 +45,8 @@ typedef struct _mp_lcd_rm67162_obj_t {
 #define ABS(N) (((N) < 0) ? (-(N)) : (N))
 #define mp_hal_delay_ms(delay) (mp_hal_delay_us(delay * 1000))
 
+STATIC volatile bool lcd_panel_active = false;
+
 int mod(int x, int m) {
     int r = x % m;
     return (r < 0) ? r + m : r;
@@ -68,8 +70,8 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
 STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     // create a constant DMA-enabled frambuffer.
     self->frame_buffer_size = self->width * self->height;
-    //self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
-    self->frame_buffer = malloc(self->frame_buffer_size);
+    self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
+    //self->frame_buffer = malloc(self->frame_buffer_size);
     if (self->frame_buffer == NULL) {
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
     }
@@ -229,8 +231,11 @@ STATIC mp_obj_t mp_lcd_rm67162_deinit(mp_obj_t self_in)
     if (self->lcd_panel_p) {
         self->lcd_panel_p->deinit(self->bus_obj);
     }
+
     free(self->frame_buffer);
     self->frame_buffer = NULL;
+    self->frame_buffer_size = 0;
+
     // m_del_obj(mp_lcd_rm67162_obj_t, self);
     return mp_const_none;
 }
@@ -374,7 +379,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
     set_area(self, 0, 0, self->width - 1, self->height - 1);
-    fill_color_buffer(self, color, 128640); 
+    fill_color_buffer(self, color, 536*120); 
     // because of the c/cpp promotion, this does not exceed the maximum value of uint16_t.
 }
 
