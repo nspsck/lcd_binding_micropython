@@ -439,7 +439,7 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
         l = self->height - y;
     }
 
-    if (l = 0) {
+    if (l == 0) {
         return;
     }
 
