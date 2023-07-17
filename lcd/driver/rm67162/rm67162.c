@@ -320,6 +320,7 @@ STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
+    frame_buffer_alloc(self, len);
     uint16_t *buffer = self->frame_buffer;
     for (int i = 0; i < len; i++) {
         *buffer++ = color;
