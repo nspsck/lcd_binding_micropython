@@ -37,7 +37,7 @@ typedef struct _mp_lcd_rm67162_obj_t {
     uint16_t *frame_buffer;                         // frame buffer
 } mp_lcd_rm67162_obj_t;
 
-#define FILLING_MAX = 0xFB40 // 536x120 = 536x240/2
+#define FILLING_MAX 0xFB40 // 536x120 = 536x240/2
 
 #define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
 #define _swap_bytes(val) ((((val) >> 8) & 0x00FF) | (((val) << 8) & 0xFF00))

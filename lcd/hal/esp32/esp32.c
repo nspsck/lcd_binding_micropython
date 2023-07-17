@@ -11,7 +11,7 @@
 #include "py/runtime.h"
 
 #ifndef FILLING_MAX 
-#define  FILLING_MAX = 0xFB40
+#define  FILLING_MAX 0xFB40
 #endif
 
 #define DEBUG_printf(...) // mp_printf(&mp_plat_print, __VA_ARGS__);
