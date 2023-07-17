@@ -338,10 +338,10 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
             write_color(self, (uint8_t *)buffer, rest * 2);
         } */
 
-    uint16_t c = _swap_bytes(color);
+    //color = _swap_bytes(color);
     uint16_t buffer[len];
     for (int i = 0; i < len; i++) {
-        buffer[i] = c;
+        buffer[i] = color;
     }
     write_color(self, (uint8_t *) buffer, len * 2);
     
