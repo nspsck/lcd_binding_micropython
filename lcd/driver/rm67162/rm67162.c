@@ -299,14 +299,14 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
     }
 
     uint8_t bufx[4] = {
-        ((x0 >> 8) & 0xFF),
+        ((x0 >> 8) & 0x03),
         (x0 & 0xFF),
-        ((x1 >> 8) & 0xFF),
+        ((x1 >> 8) & 0x03),
         (x1 & 0xFF)};
     uint8_t bufy[4] = {
-        ((y0 >> 8) & 0xFF),
+        ((y0 >> 8) & 0x03),
         (y0 & 0xFF),
-        ((y1 >> 8) & 0xFF),
+        ((y1 >> 8) & 0x03),
         (y1 & 0xFF)};
     write_spi(self, LCD_CMD_CASET, bufx, 4);
     write_spi(self, LCD_CMD_RASET, bufy, 4);
@@ -318,8 +318,9 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
     int chunks = len / buffer_size;
     int rest = len % buffer_size;
     uint16_t c = _swap_bytes(color);
+    write_color(self, (uint8_t *)c, len * 2);
 
-    if (chunks) {
+   /*  if (chunks) {
         uint16_t buffer[buffer_size];
         for (int i = 0; i < buffer_size; i++) {
             buffer[i] = c;
@@ -338,7 +339,7 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
                 buffer[i] = c;
             } 
             write_color(self, (uint8_t *)buffer, rest * 2);
-        }
+        } */
 }
 
 
@@ -351,15 +352,15 @@ STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
     }
 
     write_spi(self, LCD_CMD_CASET, (uint8_t[]) {
-        ((x >> 8) & 0xFF),
+        ((x >> 8) & 0x03),
         (x & 0xFF),
-        ((x >> 8) & 0xFF),
+        ((x >> 8) & 0x03),
         (x & 0xFF)
     }, 4);
     write_spi(self, LCD_CMD_RASET, (uint8_t[]) {
-        ((y >> 8) & 0xFF),
+        ((y >> 8) & 0x03),
         (y & 0xFF),
-        ((y >> 8) & 0xFF),
+        ((y >> 8) & 0x03),
         (y & 0xFF)
     }, 4);
     write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2);
@@ -407,14 +408,18 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
     if (y > max_height_value) {
         y = max_height_value;
     }
-    if (x + l > max_width_value) {
-        l = max_width_value - x;
+    if (x + l > self->width) {
+        l = self->width - x;
     }
 
-    if (l == 0) {
+    if (l = 0) {
+        return;
+    }
+
+    if (l <= 1) {
         draw_pixel(self, x, y, color);
     } else {
-        set_area(self, x, y, x + l, y);
+        set_area(self, x, y, x + l - 1, y);
         fill_color_buffer(self, color, l);
     }
 }
@@ -430,14 +435,18 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
     if (y > max_height_value) {
         y = max_height_value;
     }
-    if (y + l > max_height_value) {
-        l = max_height_value - y;
+    if (y + l > self->height) {
+        l = self->height - y;
     }
 
-    if (l == 0) {
+    if (l = 0) {
+        return;
+    }
+
+    if (l == 1) {
         draw_pixel(self, x, y, color);
     } else {
-        set_area(self, x, y, x, y + l);
+        set_area(self, x, y, x, y + l - 1);
         fill_color_buffer(self, color, l);
     }
 }
@@ -486,15 +495,15 @@ STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args_in[5], &bufinfo, MP_BUFFER_READ);
     write_spi(self, LCD_CMD_CASET, (uint8_t[]) {
-        ((x_start >> 8) & 0xFF),
+        ((x_start >> 8) & 0x03),
         (x_start & 0xFF),
-        (((x_end - 1) >> 8) & 0xFF),
+        (((x_end - 1) >> 8) & 0x03),
         ((x_end - 1) & 0xFF),
     }, 4);
     write_spi(self, LCD_CMD_RASET, (uint8_t[]) {
-        ((y_start >> 8) & 0xFF),
+        ((y_start >> 8) & 0x03),
         (y_start & 0xFF),
-        (((y_end - 1) >> 8) & 0xFF),
+        (((y_end - 1) >> 8) & 0x03),
         ((y_end - 1) & 0xFF),
     }, 4);
     size_t len = ((x_end - x_start) * (y_end - y_start) * self->fb_bpp / 8);
