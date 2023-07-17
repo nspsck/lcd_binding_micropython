@@ -139,7 +139,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
 
     // create a constant DMA-enabled frambuffer.
-    self->frame_buffer_size = 32768;
+    self->frame_buffer_size = 32769;
     self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
     if (self->frame_buffer == NULL) {
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
