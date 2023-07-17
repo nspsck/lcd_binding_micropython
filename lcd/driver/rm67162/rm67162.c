@@ -5,8 +5,6 @@
 #include "lcd_panel_types.h"
 #include "rm67162_rotation.h"
 
-#include "esp_lcd_panel_io.h"
-
 #include "py/obj.h"
 #include "py/runtime.h"
 #include "mphalport.h"
@@ -139,6 +137,14 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
 
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
+    
+    self->frame_buffer_size = self->width * self->height * 16;
+    self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
+    if (self->frame_buffer == NULL) {
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
+    }
+
+    memset(self->frame_buffer, 0, self->frame_buffer_size);
 
     self->reset       = args[ARG_reset].u_obj;
     self->reset_level = args[ARG_reset_level].u_bool;
@@ -253,9 +259,9 @@ STATIC mp_obj_t mp_lcd_rm67162_init(mp_obj_t self_in)
         self->madctl_val,
     }, 1);
 
-    write_spi(self, LCD_CMD_MADCTL, (uint8_t[]) {
+/*     write_spi(self, LCD_CMD_MADCTL, (uint8_t[]) {
         self->madctl_val,
-    }, 1);
+    }, 1); */
 
     write_spi(self, LCD_CMD_COLMOD, (uint8_t[]) {
         self->colmod_cal,
@@ -471,8 +477,8 @@ STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
 
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args_in[5], &bufinfo, MP_BUFFER_READ);
-    esp_lcd_panel_draw_bitmap(self->panel_handle, x_start, y_start, x_end, y_end, bufinfo.buf);
-    /* write_spi(self, LCD_CMD_CASET, (uint8_t[]) {
+    //esp_lcd_panel_draw_bitmap(self->panel_handle, x_start, y_start, x_end, y_end, bufinfo.buf);
+    write_spi(self, LCD_CMD_CASET, (uint8_t[]) {
         ((x_start >> 8) & 0x03),
         (x_start & 0xFF),
         (((x_end - 1) >> 8) & 0x03),
@@ -485,7 +491,7 @@ STATIC mp_obj_t mp_lcd_rm67162_bitmap(size_t n_args, const mp_obj_t *args_in)
         ((y_end - 1) & 0xFF),
     }, 4);
     size_t len = ((x_end - x_start) * (y_end - y_start) * self->fb_bpp / 8);
-    self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, bufinfo.buf, len); */
+    self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, bufinfo.buf, len);
 
     return mp_const_none;
 }
