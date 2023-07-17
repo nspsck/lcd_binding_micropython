@@ -96,11 +96,11 @@ inline void hal_lcd_qspi_panel_tx_color(mp_obj_base_t *self,
     spi_transaction_ext_t t;
 
     mp_hal_pin_od_low(qspi_panel_obj->cs_pin);
-    memset(&t, 0, sizeof(t));
+/*     memset(&t, 0, sizeof(t));
     t.base.flags = SPI_TRANS_MODE_QIO;
     t.base.cmd = 0x32;
     t.base.addr = 0x002C00;
-    spi_device_polling_transmit(qspi_panel_obj->io_handle, (spi_transaction_t *)&t);
+    spi_device_polling_transmit(qspi_panel_obj->io_handle, (spi_transaction_t *)&t); */
 
     uint8_t *p_color = (uint8_t *)color;
     size_t chunk_size;
@@ -114,7 +114,7 @@ inline void hal_lcd_qspi_panel_tx_color(mp_obj_base_t *self,
     t.address_bits = 0;
     t.dummy_bits = 0;
     do {
-        if (len > 0x8000) {
+        if (len > 0x8000) { //32 KB
             chunk_size = 0x8000;
         } else {
             chunk_size = len;

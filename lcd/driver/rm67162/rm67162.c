@@ -51,6 +51,7 @@ int mod(int x, int m) {
 
 
 STATIC void write_color(mp_lcd_rm67162_obj_t *self, const void *buf, int len) {
+    // note the CMD is absolutely obsollete and it's hardcorded into the tx_color
     if (self->lcd_panel_p) {
             self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, buf, len);
     }
@@ -61,6 +62,17 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
     if (self->lcd_panel_p) {
             self->lcd_panel_p->tx_param(self->bus_obj, cmd, buf, len);
     }
+}
+
+
+STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
+    // create a constant DMA-enabled frambuffer.
+    self->frame_buffer_size = self->width * self->height;
+    self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
+    if (self->frame_buffer == NULL) {
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
+    }
+    memset(self->frame_buffer, 0, self->frame_buffer_size);
 }
 
 
@@ -137,6 +149,8 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
 
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
+
+    frame_buffer_alloc(self, self->width * self->height);
 
     self->reset       = args[ARG_reset].u_obj;
     self->reset_level = args[ARG_reset_level].u_bool;
@@ -306,27 +320,16 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
         (y1 & 0xFF)};
     write_spi(self, LCD_CMD_CASET, bufx, 4);
     write_spi(self, LCD_CMD_RASET, bufy, 4);
-}
-
-STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
-    // create a constant DMA-enabled frambuffer.
-    self->frame_buffer_size = self->width * self->height;
-    self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
-    if (self->frame_buffer == NULL) {
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
-    }
-    memset(self->frame_buffer, 0, self->frame_buffer_size);
+    write_spi(self, LCD_CMD_RAMWR, NULL, 0);
 }
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
-    frame_buffer_alloc(self, len);
     uint16_t *buffer = self->frame_buffer;
     for (int i = 0; i < len; i++) {
         *buffer++ = color;
     }
     write_color(self, self->frame_buffer, len * 2);
-    free(self->frame_buffer);
 }
 
 
