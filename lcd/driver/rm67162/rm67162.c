@@ -314,12 +314,9 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
-    const int buffer_size = 536;
+    /* const int buffer_size = 536;
     int chunks = len / buffer_size;
-    int rest = len % buffer_size;
-    uint16_t c = _swap_bytes(color);
-    write_color(self, (uint8_t[]) {(c >> 8) & 0xFF, c & 0xFF}, len * 2);
-
+    int rest = len % buffer_size; */
    /*  if (chunks) {
         uint16_t buffer[buffer_size];
         for (int i = 0; i < buffer_size; i++) {
@@ -340,6 +337,14 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
             } 
             write_color(self, (uint8_t *)buffer, rest * 2);
         } */
+
+    uint16_t c = _swap_bytes(color);
+    uint16_t buffer[len];
+    for (int i = 0; i < len; i++) {
+        buffer[i] = c;
+    }
+    write_color(self, (uint8_t *) buffer, len * 2);
+    
 }
 
 
