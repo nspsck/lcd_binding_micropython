@@ -318,7 +318,7 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
     int chunks = len / buffer_size;
     int rest = len % buffer_size;
     uint16_t c = _swap_bytes(color);
-    write_color(self, (uint8_t *)c, len * 2);
+    write_color(self, (uint8_t[]) {(c >> 8) & 0xFF, c & 0xFF}, len * 2);
 
    /*  if (chunks) {
         uint16_t buffer[buffer_size];
