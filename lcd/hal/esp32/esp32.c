@@ -108,8 +108,8 @@ inline void hal_lcd_qspi_panel_tx_color(mp_obj_base_t *self,
 
     for (int i = 0; i < repetitions; i++) {
         uint8_t *p_color = (uint8_t *)color;
-        size_t chunk_size - FILLING_MAX * i;
-        size_t len = color_size - ;
+        size_t chunk_size;
+        size_t len = color_size - FILLING_MAX * i;
         memset(&t, 0, sizeof(t));
         t.base.flags = SPI_TRANS_MODE_QIO | \
                         SPI_TRANS_VARIABLE_CMD | \
