@@ -51,9 +51,9 @@ int mod(int x, int m) {
 }
 
 
-STATIC void write_color(mp_lcd_rm67162_obj_t *self, const void *buf, int len, int repetitions) {
+STATIC void write_color(mp_lcd_rm67162_obj_t *self, const void *buf, int len) {
     if (self->lcd_panel_p) {
-            self->lcd_panel_p->tx_color(self->bus_obj, repetitions, buf, len);
+            self->lcd_panel_p->tx_color(self->bus_obj, 0, buf, len);
     }
 }
 
@@ -68,7 +68,8 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
 STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     // create a constant DMA-enabled frambuffer.
     self->frame_buffer_size = self->width * self->height;
-    self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
+    //self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
+    self->frame_buffer = malloc(self->frame_buffer_size);
     if (self->frame_buffer == NULL) {
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
     }
@@ -325,18 +326,11 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
-    int repetitions;
-    if (len > FILLING_MAX) {
-        repetitions = 2; // This is enough to draw the whole screen, so it is probably safe
-    } else {
-        repetitions = 1;
-    }
-
     uint16_t *buffer = self->frame_buffer;
     for (int i = 0; i < len; i++) {
         *buffer++ = color;
     }
-    write_color(self, self->frame_buffer, len * 2, repetitions);
+    write_color(self, self->frame_buffer, len * 2);
 }
 
 
