@@ -1,11 +1,7 @@
 #include "qspi_panel.h"
 #include "lcd_panel.h"
 
-#if USE_ESP_LCD
 #include "esp32.h"
-#else
-#include "soft8080.h"
-#endif
 
 #include "mphalport.h"
 
