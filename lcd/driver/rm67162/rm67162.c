@@ -354,7 +354,7 @@ STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
         ((y >> 8) & 0x03),
         (y & 0xFF)
     }, 4);
-    write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2, 1);
+    write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2);
 }
 
 
