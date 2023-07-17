@@ -137,13 +137,13 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
 
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
-    
+
+    // create a constant DMA-enabled frambuffer.
     self->frame_buffer_size = self->width * self->height * 16;
     self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
     if (self->frame_buffer == NULL) {
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
     }
-
     memset(self->frame_buffer, 0, self->frame_buffer_size);
 
     self->reset       = args[ARG_reset].u_obj;
@@ -317,11 +317,11 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
-    uint16_t buffer[len];
+    uint16_t *buffer = self->frame_buffer;
     for (int i = 0; i < len; i++) {
-        buffer[i] = color;
+        *buffer++ = color;
     }
-    write_color(self, (uint8_t *) buffer, len * 2);
+    write_color(self, self->frame_buffer, len * 2);
     
 }
 
