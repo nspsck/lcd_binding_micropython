@@ -37,6 +37,7 @@ typedef struct _mp_lcd_rm67162_obj_t {
     uint16_t *frame_buffer;                         // frame buffer
 } mp_lcd_rm67162_obj_t;
 
+#define FILLING_MAX = 0xFB40 // 536x120 = 536x240/2
 
 #define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
 #define _swap_bytes(val) ((((val) >> 8) & 0x00FF) | (((val) << 8) & 0xFF00))
@@ -50,10 +51,9 @@ int mod(int x, int m) {
 }
 
 
-STATIC void write_color(mp_lcd_rm67162_obj_t *self, const void *buf, int len) {
-    // note the CMD is absolutely obsollete and it's hardcorded into the tx_color
+STATIC void write_color(mp_lcd_rm67162_obj_t *self, const void *buf, int len, int repetitions) {
     if (self->lcd_panel_p) {
-            self->lcd_panel_p->tx_color(self->bus_obj, LCD_CMD_RAMWR, buf, len);
+            self->lcd_panel_p->tx_color(self->bus_obj, repetitions, buf, len);
     }
 }
 
@@ -150,7 +150,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
 
-    frame_buffer_alloc(self, self->width * self->height);
+    frame_buffer_alloc(self, self->width * self->height / 2);
 
     self->reset       = args[ARG_reset].u_obj;
     self->reset_level = args[ARG_reset_level].u_bool;
@@ -325,11 +325,18 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
+    int repetitions;
+    if (len > FILLING_MAX) {
+        repetitions = 2; // This is enough to draw the whole screen, so it is probably safe
+    } else {
+        repetitions = 1;
+    }
+
     uint16_t *buffer = self->frame_buffer;
     for (int i = 0; i < len; i++) {
         *buffer++ = color;
     }
-    write_color(self, self->frame_buffer, len * 2);
+    write_color(self, self->frame_buffer, len * 2, repetitions);
 }
 
 
@@ -353,7 +360,7 @@ STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
         ((y >> 8) & 0x03),
         (y & 0xFF)
     }, 4);
-    write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2);
+    write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2, 1);
 }
 
 

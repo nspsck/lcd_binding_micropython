@@ -10,6 +10,10 @@
 #include "machine_hw_spi.c"
 #include "py/runtime.h"
 
+#ifndef FILLING_MAX 
+#define  FILLING_MAX = 0xFB40
+#endif
+
 #define DEBUG_printf(...) // mp_printf(&mp_plat_print, __VA_ARGS__);
 
 // qspi
@@ -86,45 +90,48 @@ inline void hal_lcd_qspi_panel_tx_param(mp_obj_base_t *self,
 
 
 inline void hal_lcd_qspi_panel_tx_color(mp_obj_base_t *self,
-                                        int            lcd_cmd,
+                                        int            repetitions,
                                         const void    *color,
                                         size_t         color_size)
 {
-    DEBUG_printf("hal_lcd_qspi_panel_tx_color cmd: %x, color_size: %u\n", lcd_cmd, color_size);
+    DEBUG_printf("hal_lcd_qspi_panel_tx_color cmd: %x, color_size: %u\n", repetitions, color_size);
 
     mp_lcd_qspi_panel_obj_t *qspi_panel_obj = (mp_lcd_qspi_panel_obj_t *)self;
     spi_transaction_ext_t t;
 
     mp_hal_pin_od_low(qspi_panel_obj->cs_pin);
-/*     memset(&t, 0, sizeof(t));
+    memset(&t, 0, sizeof(t));
     t.base.flags = SPI_TRANS_MODE_QIO;
     t.base.cmd = 0x32;
     t.base.addr = 0x002C00;
-    spi_device_polling_transmit(qspi_panel_obj->io_handle, (spi_transaction_t *)&t); */
+    spi_device_polling_transmit(qspi_panel_obj->io_handle, (spi_transaction_t *)&t);
 
-    uint8_t *p_color = (uint8_t *)color;
-    size_t chunk_size;
-    size_t len = color_size;
-    memset(&t, 0, sizeof(t));
-    t.base.flags = SPI_TRANS_MODE_QIO | \
-                       SPI_TRANS_VARIABLE_CMD | \
-                       SPI_TRANS_VARIABLE_ADDR | \
-                       SPI_TRANS_VARIABLE_DUMMY;
-    t.command_bits = 0;
-    t.address_bits = 0;
-    t.dummy_bits = 0;
-    do {
-        if (len > 0x8000) { //32 KB
-            chunk_size = 0x8000;
-        } else {
-            chunk_size = len;
-        }
-        t.base.tx_buffer = p_color;
-        t.base.length = chunk_size * 8;
-        spi_device_polling_transmit(qspi_panel_obj->io_handle, (spi_transaction_t *)&t);
-        len -= chunk_size;
-        p_color += chunk_size;
-    } while (len > 0);
+    for (int i = 0; i < repetitions; i++) {
+        uint8_t *p_color = (uint8_t *)color;
+        size_t chunk_size - FILLING_MAX * i;
+        size_t len = color_size - ;
+        memset(&t, 0, sizeof(t));
+        t.base.flags = SPI_TRANS_MODE_QIO | \
+                        SPI_TRANS_VARIABLE_CMD | \
+                        SPI_TRANS_VARIABLE_ADDR | \
+                        SPI_TRANS_VARIABLE_DUMMY;
+        t.command_bits = 0;
+        t.address_bits = 0;
+        t.dummy_bits = 0;
+        
+        do {
+            if (len > 0x8000) { //32 KB
+                chunk_size = 0x8000;
+            } else {
+                chunk_size = len;
+            }
+            t.base.tx_buffer = p_color;
+            t.base.length = chunk_size * 8;
+            spi_device_polling_transmit(qspi_panel_obj->io_handle, (spi_transaction_t *)&t);
+            len -= chunk_size;
+            p_color += chunk_size;
+        } while (len > 0);
+    }
 
     mp_hal_pin_od_high(qspi_panel_obj->cs_pin);
 }
