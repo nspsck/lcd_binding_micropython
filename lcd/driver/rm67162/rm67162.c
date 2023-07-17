@@ -163,7 +163,12 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->reset_level = args[ARG_reset_level].u_bool;
     self->color_space = args[ARG_color_space].u_int;
     self->bpp         = args[ARG_bpp].u_int;
-    mp_get_buffer_raise(args[ARG_buf], &self->frame_buffer, MP_BUFFER_READ);
+     mp_get_buffer_raise(args[ARG_buf].u_obj, &self->frame_buffer, MP_BUFFER_READ);
+
+    /* if (self->frame_buffer.buf == NULL) {
+        mp_get_buffer_raise(args[ARG_buf].u_obj, &self->frame_buffer, MP_BUFFER_READ);
+    } */
+    
 
     // reset
     if (self->reset != MP_OBJ_NULL) {
@@ -236,10 +241,6 @@ STATIC mp_obj_t mp_lcd_rm67162_deinit(mp_obj_t self_in)
     if (self->lcd_panel_p) {
         self->lcd_panel_p->deinit(self->bus_obj);
     }
-
-    free(self->frame_buffer);
-    self->frame_buffer = NULL;
-    self->frame_buffer_size = 0;
 
     // m_del_obj(mp_lcd_rm67162_obj_t, self);
     return mp_const_none;
