@@ -1,9 +1,6 @@
 #include "esp32.h"
 
 #include "qspi_panel.h"
-#if DPI_LCD_SUPPORTED
-#include "dpi_panel.h"
-#endif
 
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
