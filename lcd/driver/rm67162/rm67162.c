@@ -12,6 +12,32 @@
 
 #include <string.h>
 
+
+// this is the actual C-structure for our new object
+typedef struct _mp_lcd_rm67162_obj_t {
+    mp_obj_base_t base;
+    mp_obj_base_t *bus_obj;
+    mp_lcd_panel_p_t *lcd_panel_p;
+    mp_obj_t reset;
+    bool reset_level;
+    uint8_t color_space;
+
+    uint16_t width;
+    uint16_t height;
+    uint8_t rotation;
+    lcd_panel_rotation_t rotations[4];   // list of rotation tuples
+    int x_gap;
+    int y_gap;
+    uint32_t bpp;
+    uint8_t fb_bpp;
+    uint8_t madctl_val; // save current value of LCD_CMD_MADCTL register
+    uint8_t colmod_cal; // save surrent value of LCD_CMD_COLMOD register
+
+    size_t frame_buffer_size;                       // frame buffer size in bytes
+    uint16_t *frame_buffer;                         // frame buffer
+} mp_lcd_rm67162_obj_t;
+
+
 #define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
 #define _swap_bytes(val) ((((val) >> 8) & 0x00FF) | (((val) << 8) & 0xFF00))
 

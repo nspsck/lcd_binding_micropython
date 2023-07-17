@@ -122,7 +122,6 @@ STATIC mp_obj_t mp_lcd_qspi_panel_tx_color(size_t n_args, const mp_obj_t *args_i
         hal_lcd_qspi_panel_tx_color(self, cmd, NULL, 0);
     }
 
-    gc_collect();
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_qspi_panel_tx_color_obj, 2, 3, mp_lcd_qspi_panel_tx_color);
