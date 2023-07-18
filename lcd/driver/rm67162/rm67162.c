@@ -33,8 +33,10 @@ typedef struct _mp_lcd_rm67162_obj_t {
     uint8_t madctl_val; // save current value of LCD_CMD_MADCTL register
     uint8_t colmod_cal; // save surrent value of LCD_CMD_COLMOD register
 
-    size_t frame_buffer_size;                       // frame buffer size in bytes
-    uint16_t *frame_buffer;                         // frame buffer
+    mp_buffer_info_t frame_buffer;
+
+/*     size_t frame_buffer_size;                       // frame buffer size in bytes
+    uint16_t *frame_buffer;                         // frame buffer */
 } mp_lcd_rm67162_obj_t;
 
 #define FILLING_MAX 0xFB40 // 536x120 = 536x240/2
@@ -67,7 +69,7 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
 }
 
 
-STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
+/* STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     // create a constant DMA-enabled frambuffer.
     self->frame_buffer_size = self->width * self->height;
     self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
@@ -76,7 +78,7 @@ STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
     }
     memset(self->frame_buffer, 0, self->frame_buffer_size);
-}
+} */
 
 
 STATIC void set_rotation(mp_lcd_rm67162_obj_t *self, uint8_t rotation)
@@ -117,6 +119,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
 {
     enum {
         ARG_bus,
+        ARG_buf,
         ARG_reset,
         ARG_reset_level,
         ARG_color_space,
@@ -124,6 +127,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_bus,            MP_ARG_OBJ | MP_ARG_REQUIRED, {.u_obj = MP_OBJ_NULL}     },
+        { MP_QSTR_buf,            MP_ARG_OBJ | MP_ARG_REQUIRED,  {.u_obj = MP_OBJ_NULL}    },
         { MP_QSTR_reset,          MP_ARG_OBJ | MP_ARG_KW_ONLY,  {.u_obj = MP_OBJ_NULL}     },
         { MP_QSTR_reset_level,    MP_ARG_BOOL | MP_ARG_KW_ONLY, {.u_bool = false}          },
         { MP_QSTR_color_space,    MP_ARG_INT | MP_ARG_KW_ONLY,  {.u_int = COLOR_SPACE_RGB} },
@@ -153,12 +157,13 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
 
-    frame_buffer_alloc(self, self->width * self->height / 2);
+/*     frame_buffer_alloc(self, self->width * self->height / 2); */
 
     self->reset       = args[ARG_reset].u_obj;
     self->reset_level = args[ARG_reset_level].u_bool;
     self->color_space = args[ARG_color_space].u_int;
     self->bpp         = args[ARG_bpp].u_int;
+    mp_get_buffer_raise(args[ARG_buf].u_obj, &self->frame_buffer, MP_BUFFER_RW);
 
     // reset
     if (self->reset != MP_OBJ_NULL) {
@@ -331,11 +336,11 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
-    uint16_t *buffer = self->frame_buffer;
+    uint16_t *buffer = self->frame_buffer.buf;
     for (int i = 0; i < len; i++) {
         *buffer++ = color;
     }
-    write_color(self, self->frame_buffer, len * 2);
+    write_color(self, self->frame_buffer.buf, len * 2);
 }
 
 
