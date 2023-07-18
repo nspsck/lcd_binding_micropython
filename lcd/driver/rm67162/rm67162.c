@@ -277,9 +277,9 @@ STATIC mp_obj_t mp_lcd_rm67162_init(mp_obj_t self_in)
         self->madctl_val,
     }, 1);
 
-/*     write_spi(self, LCD_CMD_MADCTL, (uint8_t[]) {
+    write_spi(self, LCD_CMD_MADCTL, (uint8_t[]) {
         self->madctl_val,
-    }, 1); */
+    }, 1);
 
     write_spi(self, LCD_CMD_COLMOD, (uint8_t[]) {
         self->colmod_cal,
