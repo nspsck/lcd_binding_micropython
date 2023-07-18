@@ -237,9 +237,9 @@ STATIC mp_obj_t mp_lcd_rm67162_deinit(mp_obj_t self_in)
         self->lcd_panel_p->deinit(self->bus_obj);
     }
 
-    free(self->frame_buffer);
+    /* free(self->frame_buffer);
     self->frame_buffer = NULL;
-    self->frame_buffer_size = 0;
+    self->frame_buffer_size = 0; */
 
     // m_del_obj(mp_lcd_rm67162_obj_t, self);
     return mp_const_none;
