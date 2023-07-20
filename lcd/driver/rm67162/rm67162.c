@@ -72,7 +72,7 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
 STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     // create a constant DMA-enabled frambuffer.
     self->frame_buffer_size = self->width * self->height;
-    self->frame_buffer = gc_alloc(self->frame_buffer_size, MALLOC_CAP_DMA);
+    self->frame_buffer = gc_alloc(self->frame_buffer_size, 1);
     //self->frame_buffer = malloc(self->frame_buffer_size);
     if (self->frame_buffer == NULL) {
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
@@ -392,12 +392,11 @@ STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
 STATIC mp_obj_t mp_lcd_rm67162_fill(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
     uint16_t color = mp_obj_get_int(args_in[1]);
-    uint16_t h = mp_obj_get_int(args_in[2]);
 
     fast_fill(self, color);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 3, 3, mp_lcd_rm67162_fill);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 2, 2, mp_lcd_rm67162_fill);
 
 
 STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
