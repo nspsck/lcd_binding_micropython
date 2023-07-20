@@ -383,9 +383,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
-
-    memset(self->frame_buffer, color, self->frame_buffer_size);
     set_area(self, 0, 0, self->width - 1, self->height - 1);
+    //memset(self->frame_buffer, color, self->frame_buffer_size);
+    fill_color_buffer(self, color, self->frame_buffer_size / 2);
     write_color(self, self->frame_buffer, self->frame_buffer_size);
     // because of the c/cpp promotion, this does not exceed the maximum value of uint16_t.
 }
