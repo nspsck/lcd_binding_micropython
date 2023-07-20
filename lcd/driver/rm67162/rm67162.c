@@ -382,9 +382,9 @@ STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lcd_rm67162_pixel);
 
 
-STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color, uint16_t h) {
+STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
     set_area(self, 0, 0, self->width - 1, self->height - 1);
-    fill_color_buffer(self, color, 536 * h); 
+    fill_color_buffer(self, color, self->width * self->height); 
     // because of the c/cpp promotion, this does not exceed the maximum value of uint16_t.
 }
 
@@ -394,7 +394,7 @@ STATIC mp_obj_t mp_lcd_rm67162_fill(size_t n_args, const mp_obj_t *args_in) {
     uint16_t color = mp_obj_get_int(args_in[1]);
     uint16_t h = mp_obj_get_int(args_in[2]);
 
-    fast_fill(self, color, h);
+    fast_fill(self, color);
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 3, 3, mp_lcd_rm67162_fill);
