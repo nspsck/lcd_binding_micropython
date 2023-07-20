@@ -71,7 +71,7 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
 
 STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     // create a constant DMA-enabled frambuffer.
-    self->frame_buffer_size = self->width * self->height;
+    self->frame_buffer_size = len;
     self->frame_buffer = gc_alloc(self->frame_buffer_size, 0);
     //self->frame_buffer = malloc(self->frame_buffer_size);
     if (self->frame_buffer == NULL) {
@@ -119,7 +119,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
 {
     enum {
         ARG_bus,
-        ARG_buf,
+        /* ARG_buf, */
         ARG_reset,
         ARG_reset_level,
         ARG_color_space,
@@ -127,7 +127,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_bus,            MP_ARG_OBJ | MP_ARG_REQUIRED, {.u_obj = MP_OBJ_NULL}     },
-        { MP_QSTR_buf,            MP_ARG_OBJ | MP_ARG_REQUIRED,  {.u_obj = MP_OBJ_NULL}    },
+        /* { MP_QSTR_buf,            MP_ARG_OBJ | MP_ARG_REQUIRED,  {.u_obj = MP_OBJ_NULL}    }, */
         { MP_QSTR_reset,          MP_ARG_OBJ | MP_ARG_KW_ONLY,  {.u_obj = MP_OBJ_NULL}     },
         { MP_QSTR_reset_level,    MP_ARG_BOOL | MP_ARG_KW_ONLY, {.u_bool = false}          },
         { MP_QSTR_color_space,    MP_ARG_INT | MP_ARG_KW_ONLY,  {.u_int = COLOR_SPACE_RGB} },
@@ -157,7 +157,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
 
-    frame_buffer_alloc(self, self->width * self->height / 2);
+    frame_buffer_alloc(self, self->width * self->height * 2);
 
     self->reset       = args[ARG_reset].u_obj;
     self->reset_level = args[ARG_reset_level].u_bool;
