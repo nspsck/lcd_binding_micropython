@@ -72,7 +72,7 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
 STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     // create a constant DMA-enabled frambuffer.
     self->frame_buffer_size = self->width * self->height;
-    self->frame_buffer = gc_alloc(self->frame_buffer_size, 1);
+    self->frame_buffer = gc_alloc(self->frame_buffer_size, 0);
     //self->frame_buffer = malloc(self->frame_buffer_size);
     if (self->frame_buffer == NULL) {
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
