@@ -338,7 +338,8 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
     uint16_t *buffer = self->frame_buffer;
-    while (len--) {
+    size_t size = len;
+    while (size--) {
         *buffer++ = color;
     }
     write_color(self, self->frame_buffer, len * 2);
