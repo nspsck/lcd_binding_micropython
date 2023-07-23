@@ -24,6 +24,8 @@ typedef struct _mp_lcd_rm67162_obj_t {
 
     uint16_t width;
     uint16_t height;
+    uint16_t max_width_value;
+    uint16_t max_height_value;
     uint8_t rotation;
     lcd_panel_rotation_t rotations[4];   // list of rotation tuples
     int x_gap;
@@ -89,7 +91,9 @@ STATIC void set_rotation(mp_lcd_rm67162_obj_t *self, uint8_t rotation)
     write_spi(self, LCD_CMD_MADCTL, (uint8_t[]) { self->madctl_val }, 1);
 
     self->width = self->rotations[rotation].width;
+    self->max_width_value = self->width - 1;
     self->height = self->rotations[rotation].height;
+    self->max_height_value = self->height - 1;
     self->x_gap = self->rotations[rotation].colstart;
     self->y_gap = self->rotations[rotation].rowstart;
 }
@@ -154,6 +158,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->lcd_panel_p = (mp_lcd_panel_p_t *)self->bus_obj->type->protocol;
 #endif
 
+    //self->max_width_value etc will be initialized in the rotation later.
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
 
@@ -313,11 +318,18 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_send_cmd_obj, 4, 4, mp
 
 
 STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-    if (x0 > x1 || x1 >= self->width) {
+    if (x0 > x1 || x0 >= self->width) {
         return;
     }
-    if (y0 > y1 || y1 >= self->height) {
+    if (y0 > y1 || y0 >= self->height) {
         return;
+    }
+
+    if (x1 > self->max_width_value) {
+        x1 = self->max_width_value;
+    }
+    if (y1 > self->max_height_value) {
+        y1 = self->max_height_value;
     }
 
     uint8_t bufx[4] = {
@@ -347,25 +359,7 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
 
 
 STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t color) {
-    if ((self->width < x)) {
-        x = mod(x, self->width);
-    }
-    if ((self->width < y)) {
-        y = mod(y, self->width);
-    }
-
-    write_spi(self, LCD_CMD_CASET, (uint8_t[]) {
-        ((x >> 8) & 0x03),
-        (x & 0xFF),
-        ((x >> 8) & 0x03),
-        (x & 0xFF)
-    }, 4);
-    write_spi(self, LCD_CMD_RASET, (uint8_t[]) {
-        ((y >> 8) & 0x03),
-        (y & 0xFF),
-        ((y >> 8) & 0x03),
-        (y & 0xFF)
-    }, 4);
+    set_area(self, x, y, x, y);
     write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2);
 }
 
@@ -401,17 +395,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 2, 2, mp_lcd
 
 
 STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
-    uint16_t max_width_value = self->width - 1;
-    uint16_t max_height_value = self->height - 1;
-
-    if (x > max_width_value) {
-        x = max_width_value;
-    }
-    if (y > max_height_value) {
-        y = max_height_value;
-    }
-    if (x + l > self->width) {
-        l = self->width - x;
+    // this is to prevent user inputing way too great l, causing filling the buffer takes too long.
+    if (x + l > self->max_width_value) {
+        l = self->max_width_value - x;
     }
 
     if (l == 0) {
@@ -421,24 +407,16 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
     if (l == 1) {
         draw_pixel(self, x, y, color);
     } else {
-        set_area(self, x, y, x + l - 1, y);
+        set_area(self, x, y, x + l, y);
         fill_color_buffer(self, color, l);
     }
 }
 
 
 STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
-    uint16_t max_width_value = self->width - 1;
-    uint16_t max_height_value = self->height - 1;
-
-    if (x > max_width_value) {
-        x = max_width_value;
-    }
-    if (y > max_height_value) {
-        y = max_height_value;
-    }
-    if (y + l > self->height) {
-        l = self->height - y;
+    // this is to prevent user inputing way too great l, causing filling the buffer takes too long.
+    if (y + l > self->max_height_value) {
+        l = self->max_height_value - y;
     }
 
     if (l == 0) {
@@ -448,7 +426,7 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
     if (l == 1) {
         draw_pixel(self, x, y, color);
     } else {
-        set_area(self, x, y, x, y + l - 1);
+        set_area(self, x, y, x, y + l);
         fill_color_buffer(self, color, l);
     }
 }
