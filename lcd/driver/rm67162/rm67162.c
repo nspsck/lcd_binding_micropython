@@ -39,7 +39,6 @@ typedef struct _mp_lcd_rm67162_obj_t {
     uint16_t *frame_buffer;                         // frame buffer
 } mp_lcd_rm67162_obj_t;
 
-#define FILLING_MAX 0xFB40 // 536x120 = 536x240/2
 
 #define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
 #define _swap_bytes(val) ((((val) >> 8) & 0x00FF) | (((val) << 8) & 0xFF00))
@@ -72,23 +71,11 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
 STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     // create a constant DMA-enabled frambuffer.
     self->frame_buffer_size = len;
-    size_t free_size = heap_caps_get_largest_free_block(MALLOC_CAP_DMA);
-    self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
-    //self->frame_buffer = gc_alloc(self->frame_buffer_size, 0);
-    int threshold = free_size / 1024;
+    //self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
+    self->frame_buffer = gc_alloc(self->frame_buffer_size, 1);
     
     if (self->frame_buffer == NULL) {
-        if (threshold <= 247) {
-            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 247KB"));
-        }
-        if (threshold <= 248) {
-            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 248KB"));
-        }
-        if (threshold <= 249) {
-            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 249KB"));
-        } else {
-            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: more than 249KB"));
-        }
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer."));
     }
     memset(self->frame_buffer, 0, self->frame_buffer_size);
 }
