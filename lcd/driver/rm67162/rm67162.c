@@ -79,27 +79,21 @@ STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     
     if (self->frame_buffer == NULL) {
         if (threshold <= 50) {
-             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
-                Maiximum available DMA size: less than 50KB"));
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 50KB"));
         }
         if (threshold <= 100) {
-             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
-                Maiximum available DMA size: less than 100KB"));
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 100KB"));
         }
         if (threshold <= 150) {
-             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
-                Maiximum available DMA size: less than 150KB"));
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 150KB"));
         }
         if (threshold <= 200) {
-             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
-                Maiximum available DMA size: less than 200KB"));
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 200KB"));
         }
         if (threshold <= 250) {
-             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
-                Maiximum available DMA size: less than 250KB"));
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 250KB"));
         } else {
-            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
-                Maiximum available DMA size: a few bytes short"));
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: "));
         }
     }
     memset(self->frame_buffer, 0, self->frame_buffer_size);
