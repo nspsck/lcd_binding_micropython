@@ -72,11 +72,35 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
 STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     // create a constant DMA-enabled frambuffer.
     self->frame_buffer_size = len;
+    size_t free_size = heap_caps_get_largest_free_block(MALLOC_CAP_DMA);
     self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
     //self->frame_buffer = gc_alloc(self->frame_buffer_size, 0);
-    //self->frame_buffer = m_malloc(self->frame_buffer_size);
+    int threshold = free_size / 1024;
+    
     if (self->frame_buffer == NULL) {
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer"));
+        if (threshold <= 50) {
+             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
+                Maiximum available DMA size: less than 50KB"));
+        }
+        if (threshold <= 100) {
+             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
+                Maiximum available DMA size: less than 100KB"));
+        }
+        if (threshold <= 150) {
+             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
+                Maiximum available DMA size: less than 150KB"));
+        }
+        if (threshold <= 200) {
+             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
+                Maiximum available DMA size: less than 200KB"));
+        }
+        if (threshold <= 250) {
+             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
+                Maiximum available DMA size: less than 250KB"));
+        } else {
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer,\n
+                Maiximum available DMA size: a few bytes short"));
+        }
     }
     memset(self->frame_buffer, 0, self->frame_buffer_size);
 }
