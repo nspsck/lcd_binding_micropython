@@ -338,7 +338,7 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
     uint16_t *buffer = self->frame_buffer;
-    for (int i = 0; i < len; i++) {
+    while (len--) {
         *buffer++ = color;
     }
     write_color(self, self->frame_buffer, len * 2);
@@ -384,13 +384,8 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
-    // extend color to 32 bit, since memset will set 32 at once
-    uint32_t color_extended = ((color << 16) & 0xFFFF0000) | (color & 0x0000FFFF);
     set_area(self, 0, 0, self->width - 1, self->height - 1);
-    memset(self->frame_buffer, color_extended, self->frame_buffer_size);
-    //fill_color_buffer(self, color, self->frame_buffer_size / 2);
-    write_color(self, self->frame_buffer, self->frame_buffer_size);
-    // because of the c/cpp promotion, this does not exceed the maximum value of uint16_t.
+    fill_color_buffer(self, color, self->frame_buffer_size / 2);
 }
 
 
