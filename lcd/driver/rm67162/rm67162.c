@@ -385,7 +385,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
     // extend color to 32 bit, since memset will set 32 at once
-    int color_extended = (color & 0x0000FFFF) | ((color << 16) & 0xFFFF0000);
+    uint32_t color_extended = ((color << 16) & 0xFFFF0000) | (color & 0x0000FFFF);
     set_area(self, 0, 0, self->width - 1, self->height - 1);
     memset(self->frame_buffer, color_extended, self->frame_buffer_size);
     //fill_color_buffer(self, color, self->frame_buffer_size / 2);
