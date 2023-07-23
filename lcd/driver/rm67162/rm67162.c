@@ -79,7 +79,7 @@ STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     
     if (self->frame_buffer == NULL) {
         if (threshold <= 201) {
-            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than %dKB",threshold));
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than KB"));
         }
         if (threshold <= 210) {
             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 210KB"));
@@ -93,7 +93,7 @@ STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
         if (threshold <= 240) {
             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 240KB"));
         } else {
-            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than %dKB",threshold));
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than %dKB" % (threshold)));
         }
     }
     memset(self->frame_buffer, 0, self->frame_buffer_size);
