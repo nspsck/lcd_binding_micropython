@@ -158,7 +158,8 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
 
-    frame_buffer_alloc(self, self->width * self->height);
+    // 2 bytes for each pixel. so maximum will be width * height * 2
+    frame_buffer_alloc(self, self->width * self->height * 2);
 
     self->reset       = args[ARG_reset].u_obj;
     self->reset_level = args[ARG_reset_level].u_bool;
