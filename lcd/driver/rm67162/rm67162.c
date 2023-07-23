@@ -93,7 +93,7 @@ STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
         if (threshold <= 240) {
             mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: less than 240KB"));
         } else {
-            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: more than 240KB");
+            mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer, Maiximum available DMA size: more than 240KB"));
         }
     }
     memset(self->frame_buffer, 0, self->frame_buffer_size);
