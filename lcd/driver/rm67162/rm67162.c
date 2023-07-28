@@ -70,7 +70,7 @@ STATIC void write_spi(mp_lcd_rm67162_obj_t *self, int cmd, const void *buf, int 
 }
 
 
-STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
+/* STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
     // create a constant DMA-enabled frambuffer.
     self->frame_buffer_size = len;
     //self->frame_buffer = heap_caps_malloc(self->frame_buffer_size, MALLOC_CAP_DMA);
@@ -80,7 +80,7 @@ STATIC void frame_buffer_alloc(mp_lcd_rm67162_obj_t *self, int len) {
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to allocate DMA'able framebuffer."));
     }
     memset(self->frame_buffer, 0, self->frame_buffer_size);
-}
+} */
 
 
 STATIC void set_rotation(mp_lcd_rm67162_obj_t *self, uint8_t rotation)
@@ -158,7 +158,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->lcd_panel_p = (mp_lcd_panel_p_t *)self->bus_obj->type->protocol;
 #endif
 
-    self->max_width_value etc will be initialized in the rotation later.
+    // self->max_width_value etc will be initialized in the rotation later.
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
 
@@ -381,7 +381,8 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
     set_area(self, 0, 0, self->width - 1, self->height - 1);
-    fill_color_buffer(self, color, self->frame_buffer_size / 2);
+    //fill_color_buffer(self, color, self->frame_buffer_size / 2);
+    fill_color_buffer(self, color, self->width * self->height * 2);
 }
 
 
