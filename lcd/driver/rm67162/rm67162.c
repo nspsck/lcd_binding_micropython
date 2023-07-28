@@ -35,10 +35,10 @@ typedef struct _mp_lcd_rm67162_obj_t {
     uint8_t madctl_val; // save current value of LCD_CMD_MADCTL register
     uint8_t colmod_cal; // save surrent value of LCD_CMD_COLMOD register
 
-    /* mp_buffer_info_t frame_buffer; */
+    mp_buffer_info_t frame_buffer;
 
-    size_t frame_buffer_size;                       // frame buffer size in bytes
-    uint16_t *frame_buffer;                         // frame buffer
+    /* size_t frame_buffer_size;                       // frame buffer size in bytes
+    uint16_t *frame_buffer;   */                       // frame buffer
 } mp_lcd_rm67162_obj_t;
 
 
@@ -123,7 +123,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
 {
     enum {
         ARG_bus,
-        /* ARG_buf, */
+        ARG_buf,
         ARG_reset,
         ARG_reset_level,
         ARG_color_space,
@@ -131,7 +131,7 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_bus,            MP_ARG_OBJ | MP_ARG_REQUIRED, {.u_obj = MP_OBJ_NULL}     },
-        /* { MP_QSTR_buf,            MP_ARG_OBJ | MP_ARG_REQUIRED,  {.u_obj = MP_OBJ_NULL}    }, */
+        { MP_QSTR_buf,            MP_ARG_OBJ | MP_ARG_REQUIRED,  {.u_obj = MP_OBJ_NULL}    },
         { MP_QSTR_reset,          MP_ARG_OBJ | MP_ARG_KW_ONLY,  {.u_obj = MP_OBJ_NULL}     },
         { MP_QSTR_reset_level,    MP_ARG_BOOL | MP_ARG_KW_ONLY, {.u_bool = false}          },
         { MP_QSTR_color_space,    MP_ARG_INT | MP_ARG_KW_ONLY,  {.u_int = COLOR_SPACE_RGB} },
@@ -158,18 +158,18 @@ mp_obj_t mp_lcd_rm67162_make_new(const mp_obj_type_t *type,
     self->lcd_panel_p = (mp_lcd_panel_p_t *)self->bus_obj->type->protocol;
 #endif
 
-    //self->max_width_value etc will be initialized in the rotation later.
+    self->max_width_value etc will be initialized in the rotation later.
     self->width = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->width;
     self->height = ((mp_lcd_qspi_panel_obj_t *)self->bus_obj)->height;
 
     // 2 bytes for each pixel. so maximum will be width * height * 2
-    frame_buffer_alloc(self, self->width * self->height * 2);
+    //frame_buffer_alloc(self, self->width * self->height * 2);
 
     self->reset       = args[ARG_reset].u_obj;
     self->reset_level = args[ARG_reset_level].u_bool;
     self->color_space = args[ARG_color_space].u_int;
     self->bpp         = args[ARG_bpp].u_int;
- /*    mp_get_buffer_raise(args[ARG_buf].u_obj, &self->frame_buffer, MP_BUFFER_RW); */
+    mp_get_buffer_raise(args[ARG_buf].u_obj, &self->frame_buffer, MP_BUFFER_RW);
 
     // reset
     if (self->reset != MP_OBJ_NULL) {
@@ -243,9 +243,9 @@ STATIC mp_obj_t mp_lcd_rm67162_deinit(mp_obj_t self_in)
         self->lcd_panel_p->deinit(self->bus_obj);
     }
 
-    gc_free(self->frame_buffer);
+    /* gc_free(self->frame_buffer);
     self->frame_buffer = NULL;
-    self->frame_buffer_size = 0;
+    self->frame_buffer_size = 0; */
 
     // m_del_obj(mp_lcd_rm67162_obj_t, self); 
     return mp_const_none;
@@ -349,14 +349,14 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
-    uint32_t *buffer = (uint32_t *)self->frame_buffer;
+    uint32_t *buffer = (uint32_t *)self->frame_buffer.buf;
     // this ensures that the framebuffer is overfilled rather than unfilled.
     size_t size = (len + 1) / 2; 
     while (size--) {
         // ye, well, this should not work, but it works................but why?
         *buffer++ = color;
     }
-    write_color(self, self->frame_buffer, len * 2);
+    write_color(self, self->frame_buffer.buf, len * 2);
 }
 
 
