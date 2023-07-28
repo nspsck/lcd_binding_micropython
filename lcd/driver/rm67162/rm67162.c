@@ -349,9 +349,11 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint1
 
 
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int len /*in pixel*/) {
-    uint16_t *buffer = self->frame_buffer;
-    size_t size = len;
+    uint32_t *buffer = (uint32_t *)self->frame_buffer;
+    // this ensures that the framebuffer is overfilled rather than unfilled.
+    size_t size = (len + 1) / 2; 
     while (size--) {
+        // ye, well, this should not work, but it works................but why?
         *buffer++ = color;
     }
     write_color(self, self->frame_buffer, len * 2);
@@ -360,7 +362,7 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
 
 STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t color) {
     set_area(self, x, y, x, y);
-    write_color(self, (uint8_t[]) {(color >> 8) & 0xFF, color & 0xFF}, 2);
+    write_color(self, (uint8_t[]) color, 2);
 }
 
 
@@ -370,7 +372,6 @@ STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args_in) {
     uint16_t y = mp_obj_get_int(args_in[2]);
     uint16_t color = mp_obj_get_int(args_in[3]);
 
-    color = _swap_bytes(color);
     draw_pixel(self, x, y, color);
 
     return mp_const_none;
