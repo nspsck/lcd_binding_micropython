@@ -362,7 +362,7 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint16_t color, int le
 
 STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t color) {
     set_area(self, x, y, x, y);
-    write_color(self, (uint8_t[]) color, 2);
+    write_color(self, (uint8_t *) &color, 2);
 }
 
 
