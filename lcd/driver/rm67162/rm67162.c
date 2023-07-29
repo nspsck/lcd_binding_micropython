@@ -346,24 +346,11 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_colorRGB_obj, 4, 4, mp
 
 
 STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-    if (x0 > x1) {
+    if (x0 > x1 || x1 >= self->max_width_value) {
         return;
     }
-    if (y0 > y1) {
+    if (y0 > y1 || y1 >= self->max_height_value) {
         return;
-    }
-
-    if (x0 > self->max_width_value) {
-        x0 = self->max_width_value;
-    }
-    if (y0 > self->max_height_value) {
-        y0 = self->max_height_value;
-    }
-    if (x1 > self->max_width_value) {
-        x1 = self->max_width_value;
-    }
-    if (y1 > self->max_height_value) {
-        y1 = self->max_height_value;
     }
 
     uint8_t bufx[4] = {
@@ -432,12 +419,7 @@ STATIC mp_obj_t mp_lcd_rm67162_fill(size_t n_args, const mp_obj_t *args_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 2, 2, mp_lcd_rm67162_fill);
 
 
-STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
-    // this is to prevent user inputing way too great l, causing filling the buffer takes too long.
-    if (x + l > self->max_width_value) {
-        l = self->max_width_value - x;
-    }
-
+STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uint16_t color) {
     if (l == 0) {
         return;
     }
@@ -445,18 +427,22 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
     if (l == 1) {
         draw_pixel(self, x, y, color);
     } else {
+        if (x < 0) {
+            x = 0;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+        if (x + l > self->max_width_value) {
+            l = self->max_width_value - x;
+        }
         set_area(self, x, y, x + l, y);
         fill_color_buffer(self, color, l);
     }
 }
 
 
-STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
-    // this is to prevent user inputing way too great l, causing filling the buffer takes too long.
-    if (y + l > self->max_height_value) {
-        l = self->max_height_value - y;
-    }
-
+STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uint16_t color) {
     if (l == 0) {
         return;
     }
@@ -464,6 +450,15 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint1
     if (l == 1) {
         draw_pixel(self, x, y, color);
     } else {
+        if (x < 0) {
+            x = 0;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+        if (y + l > self->max_height_value) {
+            l = self->max_height_value - y;
+        }
         set_area(self, x, y, x, y + l);
         fill_color_buffer(self, color, l);
     }
