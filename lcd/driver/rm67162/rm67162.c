@@ -376,9 +376,12 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, int x0, int y0, int x1, int y1)
 }
 
 
-STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, int color, int len /*in pixel*/) {
+STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint32_t color, int len /*in pixel*/) {
     uint32_t *buffer = (uint32_t *)self->frame_buffer;
+    color = (color << 16) | color;
     // this ensures that the framebuffer is overfilled rather than unfilled.
+    // also because the framebuffer_size is always even, you should not worry
+    // about exceeding it.
     size_t size = (len + 1) / 2; 
     while (size--) {
         // ye, well, this should not work, but it works................but why?
