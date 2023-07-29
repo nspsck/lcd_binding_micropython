@@ -420,6 +420,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 2, 2, mp_lcd
 
 
 STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uint16_t color) {
+    if (y < 0) {
+        y = 0;
+    }
     if (l == 0) {
         return;
     }
@@ -429,9 +432,6 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uin
     } else {
         if (x < 0) {
             x = 0;
-        }
-        if (y < 0) {
-            y = 0;
         }
         if (x + l > self->max_width_value) {
             l = self->max_width_value - x;
@@ -443,6 +443,9 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uin
 
 
 STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uint16_t color) {
+    if (x < 0) {
+        return;
+    }
     if (l == 0) {
         return;
     }
@@ -450,9 +453,6 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uin
     if (l == 1) {
         draw_pixel(self, x, y, color);
     } else {
-        if (x < 0) {
-            x = 0;
-        }
         if (y < 0) {
             y = 0;
         }
@@ -466,8 +466,8 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uin
 
 STATIC mp_obj_t mp_lcd_rm67162_hline(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    uint16_t x = mp_obj_get_int(args_in[1]);
-    uint16_t y = mp_obj_get_int(args_in[2]);
+    int x = mp_obj_get_int(args_in[1]);
+    int y = mp_obj_get_int(args_in[2]);
     uint16_t l = mp_obj_get_int(args_in[3]);
     uint16_t color = mp_obj_get_int(args_in[4]);
 
@@ -479,8 +479,8 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_hline_obj, 5, 5, mp_lc
 
 STATIC mp_obj_t mp_lcd_rm67162_vline(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    uint16_t x = mp_obj_get_int(args_in[1]);
-    uint16_t y = mp_obj_get_int(args_in[2]);
+    int x = mp_obj_get_int(args_in[1]);
+    int y = mp_obj_get_int(args_in[2]);
     uint16_t l = mp_obj_get_int(args_in[3]);
     uint16_t color = mp_obj_get_int(args_in[4]);
 
