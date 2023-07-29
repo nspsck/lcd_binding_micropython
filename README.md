@@ -7,6 +7,7 @@ Contents:
 - [Introduction](#introduction)
 - [Features](#features)
 - [Documentation](#documentation)
+- [How to build](#build)
 
 ## Introduction
 This is a fork from Ibuque's lcd_binding_micropython specific for the RM67162 (Used in T-AMOLED S3). Original repo: [lcd_binding_micropython](https://github.com/lbuque/lcd_binding_micropython). 
@@ -136,3 +137,40 @@ In general, the screen starts at 0, and goes to 535 x 239, that's a total resolu
 ## Related Repositories
 
 - [framebuf-plus](https://github.com/lbuque/framebuf-plus)
+
+
+## Build
+This is only for reference. Since esp-idf v5.0.2, you must state the full path to the cmake file in order for the builder to find it.
+```Shell
+cd ~
+git clone https://github.com/nspsck/lcd_binding_micropython.git
+
+# to the micropython directory
+cd micropython/port/esp32
+make BOARD=GENERIC_S3_SPIRAM_OCT USER_C_MODULES=~/lcd_binding_micropython/lcd/micropython.cmake
+```
+You may also want to modify the `sdkconfig` before building in case to get the 16MB storage.
+```Shell
+cd micropython/port/esp32
+# use the editor you prefer
+vim boards/GENERIC_S3_SPIRAM_OCT/sdkconfig.board 
+```
+Change it to:
+```Shell
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+CONFIG_ESPTOOLPY_AFTER_NORESET=y
+
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions-16MiB.csv"
+```
+If the esp_lcd related functions are missing, do following:
+```Shell
+cd micropython/port/esp32
+# use the editor you prefer
+vim esp32_common.cmake
+```
+Jump to line 105, or where ever `APPEND IDF_COMPONENTS` is located, add `esp_lcd` to the list should fixe this.
