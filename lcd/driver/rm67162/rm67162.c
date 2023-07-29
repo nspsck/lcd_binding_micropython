@@ -375,7 +375,7 @@ STATIC void set_area(mp_lcd_rm67162_obj_t *self, int x0, int y0, int x1, int y1)
     write_spi(self, LCD_CMD_RAMWR, NULL, 0);
 }
 
-
+// this function is extremely dangerous and should be called with a lot of care.
 STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint32_t color, int len /*in pixel*/) {
     uint32_t *buffer = (uint32_t *)self->frame_buffer;
     color = (color << 16) | color;
@@ -384,7 +384,6 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint32_t color, int le
     // about exceeding it.
     size_t size = (len + 1) / 2; 
     while (size--) {
-        // ye, well, this should not work, but it works................but why?
         *buffer++ = color;
     }
     write_color(self, self->frame_buffer, len * 2);
@@ -413,7 +412,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 // this can be replaced by fill_rect
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, int color) {
     set_area(self, 0, 0, self->width - 1, self->height - 1);
-    fill_color_buffer(self, color, self->width * self->height);
+    fill_color_buffer(self, color, self->frame_buffer_size / 2);
 }
 
 
