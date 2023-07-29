@@ -336,13 +336,13 @@ STATIC int colorRGB(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 
-STATIC mp_obj_t mp_lcd_rm67162_colorRGB(mp_obj_t r, mp_obj_t g, mp_obj_t b) {
+STATIC mp_obj_t mp_lcd_rm67162_colorRGB(size_t n_args, const mp_obj_t *args_in) {
     return MP_OBJ_NEW_SMALL_INT(colorRGB(
         (uint8_t)mp_obj_get_int(r),
         (uint8_t)mp_obj_get_int(g),
         (uint8_t)mp_obj_get_int(b)));
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_3(mp_lcd_rm67162_colorRGB_obj, mp_lcd_rm67162_colorRGB);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_colorRGB_obj, 4, 4, mp_lcd_rm67162_colorRGB);
 
 
 STATIC void set_area(mp_lcd_rm67162_obj_t *self, int x0, int y0, int x1, int y1) {
@@ -532,7 +532,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_rect_obj, 6, 6, m
 /*
 Similar to: https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
 */
-STATIC void circle(mp_lcd_rm67162_obj_t *self, int xm, int ym, int r, int color) {
+STATIC void circle(mp_lcd_rm67162_obj_t *self, int xm, int ym, int r, uint16_t color) {
     int x = 0;
     int y = r;
     int p = 1 - r;
@@ -571,7 +571,7 @@ STATIC mp_obj_t mp_lcd_rm67162_circle(size_t n_args, const mp_obj_t *args_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_circle_obj, 5, 5, mp_lcd_rm67162_circle);
 
 
-STATIC void fill_circle(mp_lcd_rm67162_obj_t *self, int xm, int ym, int r, int color) {
+STATIC void fill_circle(mp_lcd_rm67162_obj_t *self, int xm, int ym, int r, uint16_t color) {
     int x = 0;
     int y = r;
     int p = 1 - r;
