@@ -330,7 +330,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_send_cmd_obj, 4, 4, mp
 Below are drawing functions.
 ------------------------------------------------------------------------------------------------------*/
 
-STATIC int colorRGB(r, g, b) {
+STATIC int colorRGB(uint8_t r, uint8_t g, uint8_t b) {
     int c = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3);
     return _swap_bytes(c);
 }
@@ -489,10 +489,10 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_vline_obj, 5, 5, mp_lc
 
 
 STATIC void rect(mp_lcd_rm67162_obj_t *self, int x, int y, int w, int l, int color) {
-    fast_hline(self, x, y, w);
-    fast_hline(self, x, y + l, w);
-    fast_vline(self, x, y, l);
-    fast_vline(self, x + w, y, l);
+    fast_hline(self, x, y, w, color);
+    fast_hline(self, x, y + l, w, color);
+    fast_vline(self, x, y, l, color);
+    fast_vline(self, x + w, y, l, color);
 }
 
 
