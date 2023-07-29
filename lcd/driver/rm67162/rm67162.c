@@ -346,10 +346,10 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_colorRGB_obj, 4, 4, mp
 
 
 STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-    if (x0 > x1 || x1 >= self->max_width_value) {
+    if (x0 > x1 || x1 > self->max_width_value) {
         return;
     }
-    if (y0 > y1 || y1 >= self->max_height_value) {
+    if (y0 > y1 || y1 > self->max_height_value) {
         return;
     }
 
@@ -404,7 +404,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 // this can be replaced by fill_rect
 STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
-    set_area(self, 0, 0, self->width - 1, self->height - 1);
+    set_area(self, 0, 0, self->max_width_value, self->max_height_value);
     fill_color_buffer(self, color, self->frame_buffer_size / 2);
 }
 
