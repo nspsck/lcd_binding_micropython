@@ -421,7 +421,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 2, 2, mp_lcd
 
 STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uint16_t color) {
     if (y < 0) {
-        y = 0;
+        return;
     }
     if (l == 0) {
         return;
@@ -431,6 +431,7 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uin
         draw_pixel(self, x, y, color);
     } else {
         if (x < 0) {
+            l -= x;
             x = 0;
         }
         if (x + l > self->max_width_value) {
@@ -454,6 +455,7 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uin
         draw_pixel(self, x, y, color);
     } else {
         if (y < 0) {
+            l -= y;
             y = 0;
         }
         if (y + l > self->max_height_value) {
