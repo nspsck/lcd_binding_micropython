@@ -48,8 +48,8 @@ def main():
     height = tft.height()
     last_line = height - font_height
 
-    tfa = tft_config.TFA # top free area
-    bfa = tft_config.BFA # bottom free area
+    tfa = 0 # top free area
+    bfa = 0 # bottom free area
 
     tft.vscroll_area(tfa, height, bfa)
 
