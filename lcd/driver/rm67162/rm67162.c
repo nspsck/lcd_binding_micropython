@@ -338,9 +338,9 @@ STATIC int colorRGB(uint8_t r, uint8_t g, uint8_t b) {
 
 STATIC mp_obj_t mp_lcd_rm67162_colorRGB(size_t n_args, const mp_obj_t *args_in) {
     return MP_OBJ_NEW_SMALL_INT(colorRGB(
-        (uint8_t)mp_obj_get_int(r),
-        (uint8_t)mp_obj_get_int(g),
-        (uint8_t)mp_obj_get_int(b)));
+        (uint8_t)mp_obj_get_int(args_in[1]),
+        (uint8_t)mp_obj_get_int(args_in[2]),
+        (uint8_t)mp_obj_get_int(args_in[3])));
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_colorRGB_obj, 4, 4, mp_lcd_rm67162_colorRGB);
 
