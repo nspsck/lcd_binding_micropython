@@ -22,10 +22,10 @@ typedef struct _mp_lcd_rm67162_obj_t {
     bool reset_level;
     uint8_t color_space;
 
-    int width;
-    int height;
-    int max_width_value;
-    int max_height_value;
+    uint16_t width;
+    uint16_t height;
+    uint16_t max_width_value;
+    uint16_t max_height_value;
     uint8_t rotation;
     lcd_panel_rotation_t rotations[4];   // list of rotation tuples
     int x_gap;
@@ -38,7 +38,7 @@ typedef struct _mp_lcd_rm67162_obj_t {
 /*     mp_buffer_info_t frame_buffer;
  */
     size_t frame_buffer_size;                       // frame buffer size in bytes
-    int *frame_buffer;                         // frame buffer
+    uint16_t *frame_buffer;                         // frame buffer
 } mp_lcd_rm67162_obj_t;
 
 
@@ -330,7 +330,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_send_cmd_obj, 4, 4, mp
 Below are drawing functions.
 ------------------------------------------------------------------------------------------------------*/
 
-STATIC int colorRGB(uint8_t r, uint8_t g, uint8_t b) {
+STATIC uint16_t colorRGB(uint8_t r, uint8_t g, uint8_t b) {
     int c = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3);
     return _swap_bytes(c);
 }
@@ -345,7 +345,7 @@ STATIC mp_obj_t mp_lcd_rm67162_colorRGB(size_t n_args, const mp_obj_t *args_in) 
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_colorRGB_obj, 4, 4, mp_lcd_rm67162_colorRGB);
 
 
-STATIC void set_area(mp_lcd_rm67162_obj_t *self, int x0, int y0, int x1, int y1) {
+STATIC void set_area(mp_lcd_rm67162_obj_t *self, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
     if (x0 > x1 || x0 >= self->width) {
         return;
     }
@@ -390,7 +390,7 @@ STATIC void fill_color_buffer(mp_lcd_rm67162_obj_t *self, uint32_t color, int le
 }
 
 
-STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, int x, int y, int color) {
+STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t color) {
     set_area(self, x, y, x, y);
     write_color(self, (uint8_t *) &color, 2);
 }
@@ -398,9 +398,9 @@ STATIC void draw_pixel(mp_lcd_rm67162_obj_t *self, int x, int y, int color) {
 
 STATIC mp_obj_t mp_lcd_rm67162_pixel(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    int x = mp_obj_get_int(args_in[1]);
-    int y = mp_obj_get_int(args_in[2]);
-    int color = mp_obj_get_int(args_in[3]);
+    uint16_t x = mp_obj_get_int(args_in[1]);
+    uint16_t y = mp_obj_get_int(args_in[2]);
+    uint16_t color = mp_obj_get_int(args_in[3]);
 
     draw_pixel(self, x, y, color);
 
@@ -410,7 +410,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_pixel_obj, 4, 4, mp_lc
 
 
 // this can be replaced by fill_rect
-STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, int color) {
+STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, uint16_t color) {
     set_area(self, 0, 0, self->width - 1, self->height - 1);
     fill_color_buffer(self, color, self->frame_buffer_size / 2);
 }
@@ -418,7 +418,7 @@ STATIC void fast_fill(mp_lcd_rm67162_obj_t *self, int color) {
 
 STATIC mp_obj_t mp_lcd_rm67162_fill(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    int color = mp_obj_get_int(args_in[1]);
+    uint16_t color = mp_obj_get_int(args_in[1]);
 
     fast_fill(self, color);
     return mp_const_none;
@@ -426,7 +426,7 @@ STATIC mp_obj_t mp_lcd_rm67162_fill(size_t n_args, const mp_obj_t *args_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_fill_obj, 2, 2, mp_lcd_rm67162_fill);
 
 
-STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, int x, int y, int l, int color) {
+STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
     // this is to prevent user inputing way too great l, causing filling the buffer takes too long.
     if (x + l > self->max_width_value) {
         l = self->max_width_value - x;
@@ -445,7 +445,7 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, int x, int y, int l, int colo
 }
 
 
-STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, int x, int y, int l, int color) {
+STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t l, uint16_t color) {
     // this is to prevent user inputing way too great l, causing filling the buffer takes too long.
     if (y + l > self->max_height_value) {
         l = self->max_height_value - y;
@@ -465,10 +465,10 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, int x, int y, int l, int colo
 
 STATIC mp_obj_t mp_lcd_rm67162_hline(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    int x = mp_obj_get_int(args_in[1]);
-    int y = mp_obj_get_int(args_in[2]);
-    int l = mp_obj_get_int(args_in[3]);
-    int color = mp_obj_get_int(args_in[4]);
+    uint16_t x = mp_obj_get_int(args_in[1]);
+    uint16_t y = mp_obj_get_int(args_in[2]);
+    uint16_t l = mp_obj_get_int(args_in[3]);
+    uint16_t color = mp_obj_get_int(args_in[4]);
 
     fast_hline(self, x, y, l, color);
     return mp_const_none;
@@ -478,10 +478,10 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_hline_obj, 5, 5, mp_lc
 
 STATIC mp_obj_t mp_lcd_rm67162_vline(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    int x = mp_obj_get_int(args_in[1]);
-    int y = mp_obj_get_int(args_in[2]);
-    int l = mp_obj_get_int(args_in[3]);
-    int color = mp_obj_get_int(args_in[4]);
+    uint16_t x = mp_obj_get_int(args_in[1]);
+    uint16_t y = mp_obj_get_int(args_in[2]);
+    uint16_t l = mp_obj_get_int(args_in[3]);
+    uint16_t color = mp_obj_get_int(args_in[4]);
 
     fast_vline(self, x, y, l, color);
     return mp_const_none;
@@ -490,7 +490,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_vline_obj, 5, 5, mp_lc
 
 
 
-STATIC void rect(mp_lcd_rm67162_obj_t *self, int x, int y, int w, int l, int color) {
+STATIC void rect(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t w, uint16_t l, uint16_t color) {
     fast_hline(self, x, y, w, color);
     fast_hline(self, x, y + l, w, color);
     fast_vline(self, x, y, l, color);
@@ -500,11 +500,11 @@ STATIC void rect(mp_lcd_rm67162_obj_t *self, int x, int y, int w, int l, int col
 
 STATIC mp_obj_t mp_lcd_rm67162_rect(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    int x = mp_obj_get_int(args_in[1]);
-    int y = mp_obj_get_int(args_in[2]);
-    int w = mp_obj_get_int(args_in[3]);
-    int l = mp_obj_get_int(args_in[4]);
-    int color = mp_obj_get_int(args_in[5]);
+    uint16_t x = mp_obj_get_int(args_in[1]);
+    uint16_t y = mp_obj_get_int(args_in[2]);
+    uint16_t w = mp_obj_get_int(args_in[3]);
+    uint16_t l = mp_obj_get_int(args_in[4]);
+    uint16_t color = mp_obj_get_int(args_in[5]);
 
     rect(self, x, y, w, l, color);
     return mp_const_none;
@@ -512,7 +512,7 @@ STATIC mp_obj_t mp_lcd_rm67162_rect(size_t n_args, const mp_obj_t *args_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_lcd_rm67162_rect_obj, 6, 6, mp_lcd_rm67162_rect);
 
 
-STATIC void fill_rect(mp_lcd_rm67162_obj_t *self, int x, int y, int w, int l, int color) {
+STATIC void fill_rect(mp_lcd_rm67162_obj_t *self, uint16_t x, uint16_t y, uint16_t w, uint16_t l, uint16_t color) {
     set_area(self, x, y, x + w - 1, y + l - 1);
     fill_color_buffer(self, color, w * l);
 }
@@ -520,11 +520,11 @@ STATIC void fill_rect(mp_lcd_rm67162_obj_t *self, int x, int y, int w, int l, in
 
 STATIC mp_obj_t mp_lcd_rm67162_fill_rect(size_t n_args, const mp_obj_t *args_in) {
     mp_lcd_rm67162_obj_t *self = MP_OBJ_TO_PTR(args_in[0]);
-    int x = mp_obj_get_int(args_in[1]);
-    int y = mp_obj_get_int(args_in[2]);
-    int w = mp_obj_get_int(args_in[3]);
-    int l = mp_obj_get_int(args_in[4]);
-    int color = mp_obj_get_int(args_in[5]);
+    uint16_t x = mp_obj_get_int(args_in[1]);
+    uint16_t y = mp_obj_get_int(args_in[2]);
+    uint16_t w = mp_obj_get_int(args_in[3]);
+    uint16_t l = mp_obj_get_int(args_in[4]);
+    uint16_t color = mp_obj_get_int(args_in[5]);
 
     fill_rect(self, x, y, w, l, color);
     return mp_const_none;
