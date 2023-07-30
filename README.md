@@ -14,14 +14,15 @@ This is a fork from Ibuque's lcd_binding_micropython specific for the RM67162 (U
 
 This driver is based on [esp_lcd](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/lcd.html).
 
-The performance has been increased by roughly 700% (only applies to the RM67162 driver). Now supports the newest Micropython using esp-idf v5.0.2.
+Now supports the newest Micropython using esp-idf v5.0.2. The performance for bitmaping has massively increased.
 
 - changed the program structure for more readability
 - added brightness control
 - fixed the initialization bug using tft_config.py
-- Drawing functions: fill, fill_rect, rect, fill_cirlce, cirlce, pixel, line, vline, hline, colorRGB
+- Drawing functions: fill, fill_rect, rect, fill_cirlce, cirlce, pixel, vline, hline, colorRGB
 
 To-DO:
+- Drawing functions: line
 - Fontsupport: bitmap fonts
 - png support
 
