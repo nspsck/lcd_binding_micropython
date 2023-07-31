@@ -1,9 +1,9 @@
-LCD Driver for MicroPython
+RM67162 Driver for MicroPython
 ------------------------------
 
 Contents:
 
-- [LCD Driver for MicroPython](#lcd-driver-for-micropython)
+- [RM67162 Driver for MicroPython](#rm67162-driver-for-microPython)
 - [Introduction](#introduction)
 - [Features](#features)
 - [Documentation](#documentation)
