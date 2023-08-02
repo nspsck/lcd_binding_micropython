@@ -438,7 +438,7 @@ STATIC void fast_hline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uin
             l = self->max_width_value - x;
         }
         set_area(self, x, y, x + l, y);
-        fill_color_buffer(self, color, l);
+        fill_color_buffer(self, color, l + 1);
     }
 }
 
@@ -462,7 +462,7 @@ STATIC void fast_vline(mp_lcd_rm67162_obj_t *self, int x, int y, uint16_t l, uin
             l = self->max_height_value - y;
         }
         set_area(self, x, y, x, y + l);
-        fill_color_buffer(self, color, l);
+        fill_color_buffer(self, color, l + 1);
     }
 }
 
