@@ -1,5 +1,7 @@
 RM67162 Driver for MicroPython
 ------------------------------
+**IMPORTANT: This version is deprecated, please visit [https://github.com/nspsck/RM67162_Micropython_QSPI](https://github.com/nspsck/RM67162_Micropython_QSPI) for the newest release.**
+
 
 Contents:
 
